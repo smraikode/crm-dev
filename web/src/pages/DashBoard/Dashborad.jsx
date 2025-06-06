@@ -5,19 +5,23 @@ import SocialMediaStatus from "./SocialMediaStatus";
 import RecentLeadsHeader from "./RecentLeadsCard";
 import TeamPerformance from "./TeamPerformance";
 
-function Dashborad() {
+function Dashboard() {
+
+  
   return (
-    <div className="w-full">
+    <div className="w-full px-4 sm:px-6 md:px-8 py-4 space-y-6">
       <DashInfo />
       <DashInfoTwo />
-      <div className="flex mb-4">
+
+      <div className="flex flex-col lg:flex-row mb-4 gap-4">
         <SocialMediaStatus />
       </div>
-      <div className="flex gap-x-6">
-        <div className="w-7/12">
+
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="w-full lg:w-7/12">
           <RecentLeadsHeader />
         </div>
-        <div className="w-5/12">
+        <div className="w-full lg:w-5/12">
           <TeamPerformance />
         </div>
       </div>
@@ -25,4 +29,4 @@ function Dashborad() {
   );
 }
 
-export default Dashborad;
+export default Dashboard;

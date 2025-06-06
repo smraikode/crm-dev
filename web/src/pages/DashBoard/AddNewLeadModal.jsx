@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const AddNewLeadModal = ({onClose}) => {
-    let [modalShow, setModalShow] = useState(true)
+const AddNewLeadModal = ({ onClose }) => {
+  const [modalShow, setModalShow] = useState(true);
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -26,18 +26,17 @@ const AddNewLeadModal = ({onClose}) => {
     // Handle form submission logic here
   };
 
-  
   return (
-    <div className="fixed left-1/2 top-1/2 z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg sm:rounded-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed left-1/2 top-1/2 z-50 grid w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-4 sm:p-6 shadow-lg sm:rounded-lg max-h-[90vh] overflow-y-auto">
       <div className="flex justify-between items-start">
         <h2 className="text-lg font-semibold">Add New Lead</h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-black">
+        <button onClick={onClose} className="text-gray-500 hover:text-black text-xl">
           ✕
         </button>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {[
             { label: 'First Name', name: 'firstName', type: 'text' },
             { label: 'Last Name', name: 'lastName', type: 'text' },
@@ -105,7 +104,9 @@ const AddNewLeadModal = ({onClose}) => {
                 'Riverside Gardens',
                 'Urban Heights',
               ].map((project, idx) => (
-                <option key={idx} value={idx + 1}>{project}</option>
+                <option key={idx} value={idx + 1}>
+                  {project}
+                </option>
               ))}
             </select>
           </div>
@@ -126,7 +127,7 @@ const AddNewLeadModal = ({onClose}) => {
             </select>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <label className="text-sm font-medium">Budget Range</label>
             <div className="flex gap-4 mt-2">
               <input
@@ -149,7 +150,7 @@ const AddNewLeadModal = ({onClose}) => {
             </div>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <label className="text-sm font-medium">Notes</label>
             <textarea
               name="notes"
@@ -161,7 +162,7 @@ const AddNewLeadModal = ({onClose}) => {
           </div>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2 pt-4">
           <button
             type="button"
             onClick={onClose}

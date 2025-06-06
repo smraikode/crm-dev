@@ -6,9 +6,8 @@ import {
   FaLinkedin,
   FaYoutube,
   FaSnapchat,
-  FaEye,
-  FaBuilding,
   FaHome,
+  FaBuilding,
   FaGlobe,
   FaWalking,
   FaQrcode,
@@ -57,60 +56,48 @@ const otherSourcesData = [
 ];
 
 const CardList = ({ title, data }) => (
-  <div className="mb-4 w-full ">
-    <div>
-      <h3 className="text-sm font-semibold text-gray-700 mb-2">{title}</h3>
-      <div className="flex flex-col gap-2">
-        {data.map((item, index) => (
-          <div
-            key={index}
-            className={`flex items-center justify-between border rounded p-2 shadow-sm hover:shadow-md text-xs ${
-              fieldStyles[item.name] || "bg-white text-black border-gray-200"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow text-[12px]">
-                {item.icon}
-              </div>
-              <div className="font-medium">{item.name}</div>
+  <div>
+    <h3 className="text-sm font-semibold text-gray-700 mb-3">{title}</h3>
+    <div className="flex flex-col gap-2">
+      {data.map((item, index) => (
+        <div
+          key={index}
+          className={`flex items-center justify-between border rounded-md p-2 text-xs shadow-sm hover:shadow-md transition ${
+            fieldStyles[item.name] || "bg-white text-black border-gray-200"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow text-[12px]">
+              {item.icon}
             </div>
-            <p className="font-bold">{item.customers}</p>
+            <span className="font-medium">{item.name}</span>
           </div>
-        ))}
-      </div>
+          <span className="font-bold">{item.customers}</span>
+        </div>
+      ))}
     </div>
   </div>
 );
 
 const SocialMediaStatus = () => {
   return (
-    <div className="bg-white shadow rounded p-4 w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-base font-semibold">Leads from Source</h2>
-        <div className="flex items-center gap-2">
-          {/* <button className="w-7 h-7 flex items-center justify-center bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200">
-            <FaEye />
-          </button> */}
-          <select className="text-xs border border-gray-300  px-2 py-1 outline-none rounded-full transition">
-            <option>Till Date</option>
-            <option>Last 7 Days</option>
-            <option>Last 30 Days</option>
-            <option>Last 90 Days</option>
-          </select>
-        </div>
+    <div className="bg-white rounded-xl shadow-md p-6 w-full">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-semibold text-gray-800">Leads from Source</h2>
+        <select className="text-xs border border-gray-300 px-2 py-1 rounded-full outline-none hover:border-gray-400 transition">
+          <option>Till Date</option>
+          <option>Last 7 Days</option>
+          <option>Last 30 Days</option>
+          <option>Last 90 Days</option>
+        </select>
       </div>
 
-      {/* Sections stacked vertically */}
-      <div className="grid grid-cols-3">
-        <div className="m-2">
-          <CardList title="Social Profiles" data={socialMediaData} />
-        </div>
-        <div className="m-2">
-          <CardList title="Third Party" data={thirdPartyData} />
-        </div>
-        <div className="m-2">
-          <CardList title="Others" data={otherSourcesData} />
-        </div>
+      {/* Card Sections */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CardList title="Social Profiles" data={socialMediaData} />
+        <CardList title="Third Party" data={thirdPartyData} />
+        <CardList title="Other Sources" data={otherSourcesData} />
       </div>
     </div>
   );
