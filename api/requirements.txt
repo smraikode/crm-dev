@@ -1,1 +1,4 @@
 fastapi
+jose
+firebase_admin
+pydantic
