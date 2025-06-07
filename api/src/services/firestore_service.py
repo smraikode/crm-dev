@@ -8,8 +8,12 @@ db = firestore.client()
 def create_user(user: User):
     user_ref = db.collection('users').document(user.email)
     user_ref.set({
-        'full_name': user.full_name,
+        'name': user.name,
+        'lastName': user.lastName,
         'email': user.email,
+        'phone': user.phone,
+        'username': user.username,
+        'role': user.role,
         'password': hash_password(user.password)
     })
 

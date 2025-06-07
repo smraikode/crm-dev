@@ -1,46 +1,57 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from services.firestore_service import create_user, verify_user
+from pydantic import BaseModel, EmailStr
+from models.user import User
+from services.firestore_service import create_user, verify_user  # Use your actual DB logic
 from datetime import datetime, timedelta
 import jwt
 
 router = APIRouter()
 
+SECRET_KEY = "ABCD"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_HOURS = 2
+
+
 class UserSignup(BaseModel):
-    full_name: str
-    email: str
+    name: str
+    lastName: str
+    email: EmailStr
+    phone: str
+    username: str
     password: str
+    role: str
+
 
 class UserLogin(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 @router.post("/signup")
 async def signup(user: UserSignup):
     try:
-        create_user(user)
-        return {"message": "User created successfully."}
+        # Convert UserSignup -> User model (excluding confirmPassword)
+        user_obj = User(**user.dict())
+        create_user(user_obj) 
+        return {"message": "User registered successfully."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.post("/login")
 async def login(user: UserLogin):
     try:
         user_exists = verify_user(user.email, user.password)
         if not user_exists:
-            raise HTTPException(status_code=404, detail="User not found")
-        # Create JWT token
-        SECRET_KEY = "ABCD" 
-        ALGORITHM = "HS256"
-        ACCESS_TOKEN_EXPIRE_HOURS = 2
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
         payload = {
             "sub": user.email,
-            "exp": datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+            "exp": datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         }
-        jwt_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-        return {"access_token": jwt_token, "token_type": "bearer"}
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+        return {"token": token, "token_type": "bearer"}
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
