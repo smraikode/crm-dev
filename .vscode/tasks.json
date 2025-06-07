@@ -12,7 +12,7 @@
         "--reload"
       ],
       "options": {
-        "cwd": "${workspaceFolder}\\api"
+        "cwd": "${workspaceFolder}\\api\\src"
       },
       "problemMatcher": [],
       "group": "build"

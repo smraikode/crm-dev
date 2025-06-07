@@ -1,2 +1,4 @@
 api/__pycache__/
-api/serviceAccountKey.json
+api/src/serviceAccountKey.json
+__pycache__/
+*.pyc
