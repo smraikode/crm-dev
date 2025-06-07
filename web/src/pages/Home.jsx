@@ -31,8 +31,25 @@ import React from 'react';
 import Sidebar from './Sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../componets/Navbar/Navbar';
+import { checkUserValid } from "../CommonUserValidCheck/checkUserValid";
+import { useNavigate } from 'react-router-dom';
+import  { useState, useEffect } from 'react';
+
+
+
 
 const Home = () => {
+
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!checkUserValid()) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+
   return (
     <div className="flex w-full h-screen">
       <Sidebar />
