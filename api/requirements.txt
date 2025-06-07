@@ -1,1 +1,6 @@
-fastapi
+FastAPI
+firebase-admin
+pydantic
+uvicorn
+python-jose
+passlib[bcrypt]
