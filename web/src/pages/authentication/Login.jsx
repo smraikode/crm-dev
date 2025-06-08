@@ -195,7 +195,7 @@ const Login = () => {
 
   } catch (error) {
     console.error("Registration Failed:", error.response?.data || error.message);
-    alert("Registration failed.");
+    alert(`Registration failed: "${error.response?.data?.detail || error.message}"`);
   }
 };
 
