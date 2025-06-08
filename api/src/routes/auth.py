@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from models.user import User
-from services.firestore_service import create_user, verify_user  # Use your actual DB logic
+from services.firestore_service import create_user, get_user_by_email, verify_user 
 from datetime import datetime, timedelta
 import jwt
 
@@ -29,10 +29,14 @@ class UserLogin(BaseModel):
 @router.post("/signup")
 async def signup(user: UserSignup):
     try:
-        # Convert UserSignup -> User model (excluding confirmPassword)
+        # Check if user already exists by email only
+        if get_user_by_email(user.email):
+            raise HTTPException(status_code=400, detail="Email already exists")
         user_obj = User(**user.dict())
         create_user(user_obj) 
         return {"message": "User registered successfully."}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
