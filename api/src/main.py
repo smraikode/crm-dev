@@ -14,6 +14,7 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api/auth")
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the FastAPI Firestore Auth!"}

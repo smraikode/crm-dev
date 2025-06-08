@@ -1,11 +1,11 @@
-# FastAPI Firestore Authentication
+# Backend
 
 This project is a FastAPI application that provides user authentication using Cloud Firestore as the database. It includes endpoints for user signup and login, ensuring secure handling of user credentials.
 
 ## Project Structure
 
 ```
-fastapi-firestore-auth
+api
 ├── src
 │   ├── main.py               # Entry point of the FastAPI application
 │   ├── models
@@ -26,7 +26,7 @@ fastapi-firestore-auth
 1. **Clone the repository:**
    ```
    git clone <repository-url>
-   cd fastapi-firestore-auth
+   cd api
    ```
 
 2. **Create a virtual environment:**
@@ -55,13 +55,17 @@ fastapi-firestore-auth
 
 - **Endpoint:** `POST /api/signup`
 - **Request Body:**
-  ```json
-  {
-    "full_name": "John Doe",
-    "email": "john.doe@example.com",
-    "password": "securepassword"
-  }
-  ```
+   ```json
+   {
+      "name": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "username": "johndoe",
+      "password": "securepassword",
+      "role": "user"
+   }
+   ```
 
 ### Login
 

@@ -1,15 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from models.user import User
-from services.firestore_service import create_user, get_user_by_email, verify_user 
-from datetime import datetime, timedelta
+from services.firestore_service import create_user, get_user_by_email, verify_user
+from datetime import datetime, timedelta, timezone
 import jwt
+from env import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
 
 router = APIRouter()
-
-SECRET_KEY = "ABCD"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 2
 
 
 class UserSignup(BaseModel):
@@ -26,6 +23,7 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
 @router.post("/signup")
 async def signup(user: UserSignup):
     try:
@@ -33,7 +31,7 @@ async def signup(user: UserSignup):
         if get_user_by_email(user.email):
             raise HTTPException(status_code=400, detail="Email already exists")
         user_obj = User(**user.dict())
-        create_user(user_obj) 
+        create_user(user_obj)
         return {"message": "User registered successfully."}
     except HTTPException:
         raise
@@ -50,7 +48,9 @@ async def login(user: UserLogin):
 
         payload = {
             "sub": user.email,
-            "exp": datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
+            "role": user_exists["role"],
+            "exp": datetime.now(timezone.utc)
+            + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
