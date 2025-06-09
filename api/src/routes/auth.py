@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Header
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from models.user import User
 from services.firestore_service import create_user, get_user_by_email, verify_user
@@ -59,3 +60,24 @@ async def login(user: UserLogin):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+def decode_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@router.get("/me")
+async def get_authenticated_user(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401, detail="Authorization header missing or invalid"
+        )
+    token = authorization.split(" ")[1]
+    payload = decode_jwt_token(token)
+    return {"email": payload.get("sub"), "role": payload.get("role")}

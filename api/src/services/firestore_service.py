@@ -34,3 +34,19 @@ def verify_user(email: str, password: str):
     if user_data and verify_password(password, user_data["password"]):
         return user_data
     return None
+
+
+def add_location(email: str, longitude: float, latitude: float):
+    try:
+        user_location_ref = db.collection("user_location")
+        user_location_ref.add(
+            {
+                "email": email,
+                "longitude": longitude,
+                "latitude": latitude,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+            }
+        )
+        return True
+    except Exception as e:
+        return False
