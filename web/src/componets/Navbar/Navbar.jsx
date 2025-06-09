@@ -1,86 +1,59 @@
-import React, { useState, useRef, useEffect } from "react";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaBell, FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const profileRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setShowProfileMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="w-full h-14 sm:h-16 md:h-18 bg-white shadow-md px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-3 flex justify-between items-center relative">
+    <nav className="w-full bg-white shadow-md px-4 py-3 flex items-center relative z-20">
+      {/* Hamburger for Mobile */}
+      <button
+        className="md:hidden flex items-center text-gray-700 text-2xl focus:outline-none"
+        onClick={() => setMobileMenuOpen((prev) => !prev)}
+        aria-label="Open menu"
+      >
+        {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
       {/* Company Name */}
-      <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-orange-400 truncate max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+      <h1
+        className="
+          mx-auto
+          text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-orange-400
+          truncate max-w-[90vw] md:max-w-xs lg:max-w-lg
+        "
+      >
         XYZ Solution Pvt Ltd
       </h1>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-3 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10">
-        {/* Enquiry Form Button */}
-        <button
-          onClick={() => navigate("/enquiryForm")}
-          className="bg-orange-400 text-white px-2.5 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-md text-xs sm:text-sm md:text-base hover:bg-orange-700 transition"
+      {/* Bell Icon - always top right */}
+      <FaBell className="ml-auto text-gray-600 w-6 h-6 cursor-pointer hover:text-orange-400 transition" />
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
         >
-          Enquiry Form
-        </button>
-
-        {/* Notification Icon */}
-        <FaBell className="text-gray-600 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 cursor-pointer hover:text-orange-400 transition" />
-
-        {/* Profile Icon and Dropdown */}
-        <div className="relative" ref={profileRef}>
-          <FaUserCircle
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="text-gray-600 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 cursor-pointer hover:text-orange-400 transition"
-          />
-          {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-40 sm:w-44 md:w-48 bg-white shadow-lg rounded-md border z-10">
-              <ul className="text-sm sm:text-base text-gray-700">
-                <li
-                  onClick={() => {
-                    navigate("/profile");
-                    setShowProfileMenu(false);
-                  }}
-                  className="px-4 py-2 hover:bg-orange-400 cursor-pointer transition"
-                >
-                  Profile
-                </li>
-                <li className="px-4 py-2 hover:bg-orange-400 cursor-pointer transition">
-                  Setting
-                </li>
-                {/* <li className="px-4 py-2 hover:bg-orange-400 cursor-pointer transition">
-                  Logout
-                </li> */}
-                <li
-                  onClick={() => {
-                    navigate("/login");
-                    setShowProfileMenu(false);
-                  }}
-                  className="px-4 py-2 hover:bg-orange-400 cursor-pointer transition"
-                >
-                  Logout
-                </li>
-              </ul>
-            </div>
-          )}
+          <div
+            className="absolute top-0 right-0 w-3/4 max-w-xs h-full bg-white shadow-lg flex flex-col gap-4 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="self-end text-2xl text-gray-700 mb-2"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <FaTimes />
+            </button>
+            {/* You can add mobile menu items here if needed */}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </nav>
   );
 };
 
 export default Navbar;
-
-
-

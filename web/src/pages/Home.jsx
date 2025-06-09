@@ -1,64 +1,27 @@
-// import React from 'react'
-// import Sidebar from './Sidebar/Sidebar'
-// import { Outlet } from 'react-router-dom'
-// import Navbar from '../componets/Navbar/Navbar'
-// import Profile from '../componets/Navbar/Profile'
-
-// const Home = () => {
-//   return (
-//     <>
-//     <div className='flex w-full h-screen'>
-    
-//     <Sidebar />
-//     <div className='ml-56 flex flex-col flex-1 overflow-y-auto'>
-//     <Navbar className='p-4 bg-gray-100 flex-1 overflow-y-auto'/>
-//     <Outlet />
-    
-//     </div>
-    
-//     </div>
-
-     
-//     </>
-//   )
-// }
-
-// export default Home
-
-
-// src/pages/Home.jsx
-import React from 'react';
-import Sidebar from './Sidebar/Sidebar';
-import { Outlet } from 'react-router-dom';
-import Navbar from '../componets/Navbar/Navbar';
+import React, { useEffect } from "react";
+import Sidebar from "./Sidebar/Sidebar";
+import { Outlet, useNavigate } from "react-router-dom";
+import Navbar from "../componets/Navbar/Navbar";
 import { checkUserValid } from "../CommonUserValidCheck/checkUserValid";
-import { useNavigate } from 'react-router-dom';
-import  { useState, useEffect } from 'react';
-
-
-
 
 const Home = () => {
-
-
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!checkUserValid()) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [navigate]);
 
-
   return (
-    <div className="flex w-full h-screen">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="ml-56 flex flex-col flex-1 overflow-y-auto">
+      <main className="flex flex-col flex-1 pt-4 px-2 md:ml-44 lg:ml-56 xl:ml-64 transition-all duration-300 overflow-x-auto">
         <Navbar className="p-4 bg-gray-100" />
         <div className="p-4">
           <Outlet />
         </div>
-      </div>
+      </main>
     </div>
   );
 };
