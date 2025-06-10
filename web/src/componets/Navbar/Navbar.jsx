@@ -8,14 +8,16 @@ const Navbar = () => {
 
   return (
     <nav className="w-full bg-white shadow-md px-4 py-3 flex items-center relative z-20">
+      
       {/* Hamburger for Mobile */}
-      <button
+      {/* <button
         className="md:hidden flex items-center text-gray-700 text-2xl focus:outline-none"
         onClick={() => setMobileMenuOpen((prev) => !prev)}
         aria-label="Open menu"
       >
         {mobileMenuOpen ? <FaTimes /> : <FaBars />}
-      </button>
+      </button> */}
+      
 
       {/* Company Name */}
       <h1
