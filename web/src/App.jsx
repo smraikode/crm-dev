@@ -17,11 +17,8 @@ function App() {
     <Router>
 
       <ToastContainer position="top-right" autoClose={3000} />
-
-
       <Routes>
         <Route path="/login" element={<Login />} />
-
         {/* Directly render Home and nested routes under it */}
         <Route path="/" element={<Home />}>
           <Route path="dashboard" element={<Dashborad />} />

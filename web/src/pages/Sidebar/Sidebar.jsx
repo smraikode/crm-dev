@@ -99,15 +99,17 @@ const Sidebar = () => {
   const sidebarContent = (
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6 px-1 min-w-0">
+      <div className="flex items-center gap-4 mb-6 px-1 min-w-0">
         <FaRegGem className="text-orange-400 text-lg xs:text-xl sm:text-2xl" />
         <h1
-          className="font-bold text-orange-400 text-base xs:text-lg sm:text-xl md:text-2xl whitespace-nowrap truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-[180px]"
-          title="menu"
+          className="font-bold text-orange-400 text-base xs:text-lg sm:text-xl md:text-2xl whitespace-nowrap truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[240px] mt-1"
+          title="Menu"
         >
-          menu
+          Menu
         </h1>
       </div>
+
+
       {/* Navigation */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <ul className="space-y-2">
@@ -120,9 +122,8 @@ const Sidebar = () => {
                   <>
                     <div
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${
-                        active ? "bg-gray-700" : ""
-                      }`}
+                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-base sm:text-lg">
@@ -143,9 +144,8 @@ const Sidebar = () => {
                             onClick={handleNav}
                           >
                             <li
-                              className={`px-2 py-1 rounded hover:bg-gray-500 ${
-                                isActive(sub.path) ? "bg-gray-700" : ""
-                              } text-xs sm:text-sm`}
+                              className={`px-2 py-1 rounded hover:bg-gray-500 ${isActive(sub.path) ? "bg-gray-700" : ""
+                                } text-xs sm:text-sm`}
                             >
                               {sub.label}
                             </li>
@@ -157,9 +157,8 @@ const Sidebar = () => {
                 ) : (
                   <Link to={item.path} onClick={handleNav}>
                     <div
-                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${
-                        active ? "bg-gray-700" : ""
-                      }`}
+                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
                     >
                       <span className="text-base sm:text-lg">{item.icon}</span>
                       <span className="text-xs xs:text-sm sm:text-base">
@@ -203,10 +202,18 @@ const Sidebar = () => {
           <span className="text-xs xs:text-sm sm:text-base">Settings</span>
         </div>
         {/* Logout */}
-        <div className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-orange-400 hover:text-red-400 hover:bg-gray-500">
+        <div
+          onClick={() => {
+            navigate("/login");
+            localStorage.removeItem("token");
+            setShowProfileMenu(false);
+          }}
+          className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-orange-400 hover:text-red-400 hover:bg-gray-500"
+        >
           <FaSignOutAlt className="text-base sm:text-lg" />
           <span className="text-xs xs:text-sm sm:text-base">Logout</span>
         </div>
+
       </div>
     </div>
   );
