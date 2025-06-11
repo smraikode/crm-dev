@@ -21,7 +21,6 @@ const Login = () => {
     lastName: "",
     email: "",
     phone: "",
-    username: "",
     password: "",
     role: "",
   });
@@ -60,9 +59,6 @@ const Login = () => {
   //   setLoginErrors(errors);
   //   return Object.keys(errors).length === 0;
   // };
-
-
-
 
   const validateLogin = () => {
     const errors = {};
@@ -114,10 +110,6 @@ const Login = () => {
       }
     }
 
-    if (!registerForm.username.trim()) {
-      errors.username = "Username is required";
-    }
-
     if (!registerForm.password) {
       errors.password = "Password is required";
     } else if (registerForm.password.length < 6) {
@@ -130,9 +122,9 @@ const Login = () => {
       errors.confirmPassword = "Passwords do not match";
     }
 
-    if (!registerForm.role) {
-      errors.role = "Role is required";
-    }
+    // if (!registerForm.role) {
+    //   errors.role = "Role is required";
+    // }
 
     setRegisterErrors(errors);
     return Object.keys(errors).length === 0;
@@ -155,7 +147,9 @@ const Login = () => {
         localStorage.setItem("token", token); // store token in localStorage
         localStorage.setItem("role", role);
         toast.success("Login successful!");
+        navigate("/");
         // Navigate based on role
+        /*
         switch (role) {
           case "Admin":
             navigate("/");
@@ -166,6 +160,7 @@ const Login = () => {
           default:
             navigate("/");
         }
+        */
       } else {
         toast.error("Login failed: Token not received");
       }
@@ -173,11 +168,8 @@ const Login = () => {
       console.log("Error", error);
       // alert("Login failed, please check your credentials");
       toast.error("Login failed. Please check your credentials.");
-
     }
   };
-
-
 
   //handle register submit
 
@@ -204,14 +196,12 @@ const Login = () => {
         lastName: "",
         email: "",
         phone: "",
-        username: "",
         password: "",
         confirmPassword: "",
-        role: "",
+        //role: "",
       });
       setRegisterErrors({});
       navigate("/login");
-
     } catch (error) {
       console.error("Registration Failed:", error.response?.data || error.message);
       toast.error(`Registration Failed: "${error.response?.data?.detail || error.message}"`);
@@ -219,7 +209,6 @@ const Login = () => {
       // alert("Registration failed.");
     }
   };
-
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
@@ -392,25 +381,6 @@ const Login = () => {
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={registerForm.username}
-                onChange={handleRegisterChange}
-                placeholder="Choose a username"
-                required
-                className={`w-full h-10 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${registerErrors.username ? "border-red-500 focus:ring-red-500" : "focus:ring-orange-500"
-                  }`}
-              />
-              {registerErrors.username && (
-                <p className="text-red-500 text-sm mt-1">{registerErrors.username}</p>
-              )}
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
@@ -450,7 +420,8 @@ const Login = () => {
               </div>
             </div>
 
-            <div>
+
+            {/* <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
                 Role
               </label>
@@ -469,7 +440,7 @@ const Login = () => {
               {registerErrors.role && (
                 <p className="text-red-500 text-sm mt-1">{registerErrors.role}</p>
               )}
-            </div>
+            </div> */}
 
             <button
               type="submit"

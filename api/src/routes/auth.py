@@ -15,7 +15,6 @@ class UserSignup(BaseModel):
     lastName: str
     email: EmailStr
     phone: str
-    username: str
     password: str
     role: str
 

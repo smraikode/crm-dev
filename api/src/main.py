@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
 from routes.map import router as map_router
+from routes.assignRole import router as assign_role_router
 
 app = FastAPI()
 
@@ -15,6 +16,7 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(map_router, prefix="/api")
+app.include_router(assign_role_router, prefix="/api")
 
 
 @app.get("/")

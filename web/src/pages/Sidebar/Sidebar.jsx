@@ -33,64 +33,110 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => location.pathname.startsWith(path);
+  const userRole = localStorage.getItem("role");
 
   const menuItems = [
-    {
-      label: "Dashboard",
-      icon: <FaTachometerAlt />,
-      path: "/dashboard",
-    },
-    {
-      label: "Leads",
-      icon: <FaUserFriends />,
-      path: "/leads",
-      submenu: [
-        { label: "All Leads", path: "/leads/all" },
-        { label: "New Lead", path: "/leads/new" },
-      ],
-    },
-    {
-      label: "Projects",
-      icon: <FaProjectDiagram />,
-      path: "/projects",
-      submenu: [
-        { label: "All Projects", path: "/projects/all" },
-        { label: "Analytics", path: "/projects/analytics" },
-      ],
-    },
-    {
-      label: "Properties",
-      icon: <FaHome />,
-      path: "/properties",
-    },
-    {
-      label: "Reports",
-      icon: <FaChartBar />,
-      path: "/reports",
-      submenu: [
-        { label: "My Reports", path: "/reports/my" },
-        { label: "Team Reports", path: "/reports/team" },
-        { label: "Company Reports", path: "/reports/company" },
-      ],
-    },
-    {
-      label: "Tasks",
-      icon: <FaTasks />,
-      path: "/tasks",
-      submenu: [
-        { label: "My Tasks", path: "/tasks/my" },
-        { label: "Team Tasks", path: "/tasks/team" },
-      ],
-    },
-    {
-      label: "Attendance",
-      icon: <FaUserCheck />,
-      submenu: [
-        { label: "My Attendance", path: "/attendance/my" },
-        { label: "Team Attendance", path: "/attendance/team" },
-      ],
-    },
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Dashboard",
+          icon: <FaTachometerAlt />,
+          path: "/dashboard",
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Leads",
+          icon: <FaUserFriends />,
+          path: "/leads",
+          submenu: [
+            { label: "All Leads", path: "/leads/all" },
+            { label: "New Lead", path: "/leads/new" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Projects",
+          icon: <FaProjectDiagram />,
+          path: "/projects",
+          submenu: [
+            { label: "All Projects", path: "/projects/all" },
+            { label: "Analytics", path: "/projects/analytics" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Properties",
+          icon: <FaHome />,
+          path: "/properties",
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Reports",
+          icon: <FaChartBar />,
+          path: "/reports",
+          submenu: [
+            { label: "My Reports", path: "/reports/my" },
+            { label: "Team Reports", path: "/reports/team" },
+            { label: "Company Reports", path: "/reports/company" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Tasks",
+          icon: <FaTasks />,
+          path: "/tasks",
+          submenu: [
+            { label: "My Tasks", path: "/tasks/my" },
+            { label: "Team Tasks", path: "/tasks/team" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Attendance",
+          icon: <FaUserCheck />,
+          submenu: [
+            { label: "My Attendance", path: "/attendance/my" },
+            { label: "Team Attendance", path: "/attendance/team" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Manage Roles",
+          icon: <FaUserCircle />,
+          path: "/assign-role",
+        },
+      ]
+      : []),
   ];
+
 
   // Close sidebar on navigation (mobile)
   const handleNav = () => setSidebarOpen(false);
@@ -151,6 +197,7 @@ const Sidebar = () => {
                             </li>
                           </Link>
                         ))}
+                        
                       </ul>
                     )}
                   </>
@@ -167,6 +214,7 @@ const Sidebar = () => {
                     </div>
                   </Link>
                 )}
+            
               </li>
             );
           })}
@@ -175,16 +223,18 @@ const Sidebar = () => {
       {/* Bottom Section */}
       <div className="space-y-2 pt-2 pb-1">
         {/* Enquiry Form */}
-        <div
-          className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-orange-400"
-          onClick={() => {
-            navigate("/enquiryForm");
-            handleNav();
-          }}
-        >
-          <FaClipboardList className="text-base sm:text-lg" />
-          <span className="text-xs xs:text-sm sm:text-base">Enquiry Form</span>
-        </div>
+        {userRole === "admin" && (
+          <div
+            className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-orange-400"
+            onClick={() => {
+              navigate("/enquiryForm");
+              handleNav();
+            }}
+          >
+            <FaClipboardList className="text-base sm:text-lg" />
+            <span className="text-xs xs:text-sm sm:text-base">Enquiry Form</span>
+          </div>
+        )}
         {/* Profile */}
         <div
           className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-orange-400"
