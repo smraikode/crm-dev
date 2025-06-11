@@ -15,7 +15,10 @@ const activeEnvironment = environments.local;
 const apiEndpoints = {
 
     login:`${activeEnvironment}/auth/login`,
-    register:`${activeEnvironment}/auth/signup`
+    register:`${activeEnvironment}/auth/signup`,
+    searchUsers: `${activeEnvironment}/search/search-users`,
+    assignRole: `${activeEnvironment}/permissions/assign-role`,
+    
 }
 
 export { activeEnvironment, apiEndpoints };
