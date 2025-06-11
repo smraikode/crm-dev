@@ -16,9 +16,7 @@ const apiEndpoints = {
 
     login:`${activeEnvironment}/auth/login`,
     register:`${activeEnvironment}/auth/signup`,
-    mytimeline:`${activeEnvironment}/mytimeline/current-location`
-
-    register:`${activeEnvironment}/auth/signup`,
+    mytimeline:`${activeEnvironment}/mytimeline/current-location`,
     searchUsers: `${activeEnvironment}/search/search-users`,
     assignRole: `${activeEnvironment}/permissions/assign-role`,
     
