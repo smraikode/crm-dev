@@ -121,7 +121,7 @@ const Sidebar = () => {
           submenu: [
             { label: "My Attendance", path: "/attendance/my" },
             { label: "Team Attendance", path: "/attendance/team" },
-            { label : "My Timeline", path: "/attendance/mytimeline" }
+            { label: "My Timeline", path: "/attendance/mytimeline" },
           ],
         },
       ]
