@@ -11,8 +11,12 @@ import ViewAllLeads from "./pages/DashBoard/ViewAllLeads";
 import MyTimeline from "./pages/Attendance/MyTimeline";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./componets/Navbar/protectedRoutes";
+import getDecodedToken from "./utils/decodeToken"; 
 
 function App() {
+    const decoded = getDecodedToken(); 
+    const role = decoded?.role || "";
   return (
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -23,12 +27,17 @@ function App() {
         <Route path="/" element={<Home />}>
           <Route path="dashboard" element={<Dashborad />} />
           <Route path="leads" element={<ViewAllLeads />} />
-          <Route path="attendance/mytimeline" element={<MyTimeline />} />
-          <Route path="assign-role" element={<AssignRolePage />} />
-          {/* <Route path="enquiryForm" element={<EnquiryForm />} /> */}
+          <Route
+            path="assign-role"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AssignRolePage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
-        {/* Redirect unknown paths to login */}
+
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import getDecodedToken from "../../utils/decodeToken"; 
 import {
   FaTachometerAlt,
   FaUserFriends,
@@ -33,7 +34,9 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => location.pathname.startsWith(path);
-  const userRole = localStorage.getItem("role");
+  const decoded = getDecodedToken(); 
+
+  const userRole = decoded?.role || "";
 
   const menuItems = [
     ...(userRole === "admin"
@@ -198,7 +201,7 @@ const Sidebar = () => {
                             </li>
                           </Link>
                         ))}
-                        
+
                       </ul>
                     )}
                   </>
@@ -215,57 +218,13 @@ const Sidebar = () => {
                     </div>
                   </Link>
                 )}
-            
+
               </li>
             );
           })}
         </ul>
       </div>
-      {/* Bottom Section */}
-      <div className="space-y-2 pt-2 pb-1">
-        {/* Enquiry Form */}
-        {userRole === "admin" && (
-          <div
-            className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-orange-400"
-            onClick={() => {
-              navigate("/enquiryForm");
-              handleNav();
-            }}
-          >
-            <FaClipboardList className="text-base sm:text-lg" />
-            <span className="text-xs xs:text-sm sm:text-base">Enquiry Form</span>
-          </div>
-        )}
-        {/* Profile */}
-        <div
-          className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-orange-400"
-          onClick={() => {
-            navigate("/profile");
-            handleNav();
-          }}
-        >
-          <FaUserCircle className="text-base sm:text-lg" />
-          <span className="text-xs xs:text-sm sm:text-base">Profile</span>
-        </div>
-        {/* Settings */}
-        <div className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer hover:bg-gray-500">
-          <FaCog className="text-base sm:text-lg" />
-          <span className="text-xs xs:text-sm sm:text-base">Settings</span>
-        </div>
-        {/* Logout */}
-        <div
-          onClick={() => {
-            navigate("/login");
-            localStorage.removeItem("token");
-            setShowProfileMenu(false);
-          }}
-          className="flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-orange-400 hover:text-red-400 hover:bg-gray-500"
-        >
-          <FaSignOutAlt className="text-base sm:text-lg" />
-          <span className="text-xs xs:text-sm sm:text-base">Logout</span>
-        </div>
 
-      </div>
     </div>
   );
 

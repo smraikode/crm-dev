@@ -1,7 +1,11 @@
+from env import ALGORITHM, SECRET_KEY
+from routes import auth
 from firebase_config import *
 from firebase_admin import firestore
 from models.user import User
 from utils.security import hash_password, verify_password
+from firebase_admin.auth import verify_id_token
+import jwt
 
 db = firestore.client()
 
@@ -57,3 +61,15 @@ def assign_role_to_user(email: str, role: str):
 
     user_ref.update({"role": role})
     return True
+
+
+def verify_jwt_token(token: str):
+    try:
+        cleaned_token = token.strip()
+        if cleaned_token.startswith("Bearer "):
+            cleaned_token = cleaned_token.split(" ", 1)[1]
+        decoded_token = jwt.decode(cleaned_token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token
+    except Exception as e:
+        print(f"JWT verification failed: {e}")
+        return None

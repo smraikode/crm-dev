@@ -10,20 +10,12 @@ import TeamPerformance from "./TeamPerformance";
 function Dashboard() {
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const isValid = checkUserValid();
-  //   if (!isValid) {
-  //     navigate("/login");
-  //   }
-  // }, []);
-
   useEffect(() => {
     const isValid = checkUserValid();
-  if (!isValid) {
-    navigate('/login');
-  }
-}, [navigate]);
-
+    if (!isValid) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-4 space-y-6">
