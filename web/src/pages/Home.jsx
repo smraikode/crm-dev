@@ -1,26 +1,29 @@
-import React from 'react'
-import Sidebar from './Sidebar/Sidebar'
-import { Outlet } from 'react-router-dom'
-import Navbar from '../componets/Navbar/Navbar'
-import Profile from '../componets/Navbar/Profile'
+import React, { useEffect } from "react";
+import Sidebar from "./Sidebar/Sidebar";
+import { Outlet, useNavigate } from "react-router-dom";
+import Navbar from "../componets/Navbar/Navbar";
+import { checkUserValid } from "../CommonUserValidCheck/checkUserValid";
+import  { useState } from 'react';
 
 const Home = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!checkUserValid()) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   return (
-    <>
-    <div className='flex w-full h-screen'>
-    
-    <Sidebar />
-    <div className='ml-56 flex flex-col flex-1 overflow-y-auto'>
-    <Navbar className='p-4 bg-gray-100 flex-1 overflow-y-auto'/>
-    <Outlet />
-    
+    <div className="min-h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex flex-col flex-1 pt-4 px-2 md:ml-44 lg:ml-56 xl:ml-64 transition-all duration-300 overflow-x-auto">
+        <Navbar className="p-4 bg-gray-100" />
+        <div className="p-4">
+          <Outlet />
+        </div>
+      </main>
     </div>
-    
-    </div>
+  );
+};
 
-     
-    </>
-  )
-}
-
-export default Home
+  export default Home;

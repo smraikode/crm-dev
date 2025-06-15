@@ -1,34 +1,48 @@
-import "./App.css";
 import React from "react";
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+import AssignRolePage from "./pages/DashBoard/AssignRole";
 import Login from "./pages/authentication/Login";
-import Sidebar from "./pages/Sidebar/Sidebar";
 import Home from "./pages/Home";
 import Dashborad from "./pages/DashBoard/Dashborad";
-import Navbar from "./componets/Navbar/Navbar";
-// import EnquiryForm from "./componets/Navbar/EnquiryForm";
 import ViewAllLeads from "./pages/DashBoard/ViewAllLeads";
+// import EnquiryForm from "./pages/DashBoard/EnquiryForm"; // Uncomment when ready
+
+import MyTimeline from "./pages/Attendance/MyTimeline";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./componets/Navbar/protectedRoutes";
+import getDecodedToken from "./utils/decodeToken";
+
 function App() {
+  const decoded = getDecodedToken();
+  const role = decoded?.role || "";
   return (
-    <div className="App ">
-      <Router>
-        <Routes>
-          <Route path="login" element={<Login />} />
+    <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-          <Route path="/" element={<Home />}>
-            <Route path="/dashboard" element={<Dashborad />} />
-            {/* <Route path="/enquiryForm" element={<EnquiryForm />} /> */}
-            <Route path="/leads" element={<ViewAllLeads />} />
+        {/* Directly render Home and nested routes under it */}
+        <Route path="/" element={<Home />}>
+          <Route path="dashboard" element={<Dashborad />} />
+          <Route path="leads" element={<ViewAllLeads />} />
+          <Route path="attendance/mytimeline" element={<MyTimeline />} />
 
-          </Route>
-        </Routes>
-      </Router>
-    </div>
+          <Route
+            path="assign-role"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AssignRolePage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+
+
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 }
 

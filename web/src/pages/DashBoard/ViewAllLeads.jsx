@@ -298,10 +298,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddNewLeadModal from './AddNewLeadModal';
+import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
+
 
 const ViewAllLeads = () => {
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState('All Leads');
+
+  const navigate = useNavigate();
+  
+   useEffect(() => {
+      const isValid = checkUserValid();
+    if (!isValid) {
+      navigate('/login');
+    }
+  }, [navigate]);
+  
 
   const handleClickAddNewLead = () => {
     setShowModal(true);
