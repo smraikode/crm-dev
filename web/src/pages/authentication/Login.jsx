@@ -42,23 +42,6 @@ const Login = () => {
     setRegisterErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
 
-  // // Validate login fields
-  // const validateLogin = () => {
-  //   const errors = {};
-  //   if (!loginForm.email) {
-  //     errors.email = "Username(email) is required";
-  //   }
-  //   // Optional: You can validate email format if login is actually email
-  //   // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   // if (loginForm.email && !emailRegex.test(loginForm.email)) {
-  //   //   errors.email = "Invalid email format";
-  //   // }
-  //   if (!loginForm.password) {
-  //     errors.password = "Password is required";
-  //   }
-  //   setLoginErrors(errors);
-  //   return Object.keys(errors).length === 0;
-  // };
 
   const validateLogin = () => {
     const errors = {};
@@ -131,6 +114,7 @@ const Login = () => {
   };
 
   // Login submit
+  
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
@@ -142,31 +126,15 @@ const Login = () => {
       if (token) {
         // Decode the JWT token to extract role
         const decoded = jwtDecode(token);
-        const role = decoded.role;
         // Store token and role
         localStorage.setItem("token", token); // store token in localStorage
-        localStorage.setItem("role", role);
         toast.success("Login successful!");
         navigate("/");
-        // Navigate based on role
-        /*
-        switch (role) {
-          case "Admin":
-            navigate("/");
-            break;
-          case "sales":
-            navigate("/login");
-            break;
-          default:
-            navigate("/");
-        }
-        */
       } else {
         toast.error("Login failed: Token not received");
       }
     } catch (error) {
       console.log("Error", error);
-      // alert("Login failed, please check your credentials");
       toast.error("Login failed. Please check your credentials.");
     }
   };
