@@ -10,6 +10,20 @@ import jwt
 db = firestore.client()
 
 
+# def create_user(user: User):
+#     user_ref = db.collection("users").document(user.email)
+#     user_ref.set(
+#         {
+#             "name": user.name,
+#             "lastName": user.lastName,
+#             "email": user.email,
+#             "phone": user.phone,
+#             "role": "employee",
+#             "password": hash_password(user.password),
+#         }
+#     )
+
+
 def create_user(user: User):
     user_ref = db.collection("users").document(user.email)
     user_ref.set(
@@ -20,6 +34,7 @@ def create_user(user: User):
             "phone": user.phone,
             "role": "employee",
             "password": hash_password(user.password),
+            "token": "",  # <--- ADD THIS LINE
         }
     )
 
@@ -39,20 +54,44 @@ def verify_user(email: str, password: str):
     return None
 
 
-def add_location(email: str, longitude: float, latitude: float):
+# def add_location(email: str, longitude: float, latitude: float):
+#     try:
+#         user_location_ref = db.collection("user_location")
+#         user_location_ref.add(
+#             {
+#                 "email": email,
+#                 "longitude": longitude,
+#                 "latitude": latitude,
+#                 "updated_at": firestore.SERVER_TIMESTAMP,
+#             }
+#         )
+#         return True
+#     except Exception as e:
+#         return False
+
+
+def add_location(email: str, longitude: float, latitude: float, status: str):
     try:
+        print(f"?? Adding to Firestore -> Email: {email}, Lat: {latitude}, Long: {longitude}, Status: {status}")
         user_location_ref = db.collection("user_location")
-        user_location_ref.add(
-            {
-                "email": email,
-                "longitude": longitude,
-                "latitude": latitude,
-                "updated_at": firestore.SERVER_TIMESTAMP,
-            }
-        )
+
+        result = user_location_ref.add({
+            "email": email,
+            "longitude": longitude,
+            "latitude": latitude,
+            "status": status,
+            "updated_at": firestore.SERVER_TIMESTAMP,
+        })
+
+        print(f"? Firestore write successful. Document ID: {result[1].id}")
         return True
+
     except Exception as e:
+        print("? Firestore Error:", e)
         return False
+
+
+
 
 def assign_role_to_user(email: str, role: str):
     user_ref = db.collection("users").document(email)

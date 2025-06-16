@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from env import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
 
+from firebase_admin import firestore
+db = firestore.client()
+
 router = APIRouter()
 
 
@@ -39,6 +42,30 @@ async def signup(user: UserSignup):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+# @router.post("/login")
+# async def login(user: UserLogin):
+#     try:
+#         user_exists = verify_user(user.email, user.password)
+#         if not user_exists:
+#             raise HTTPException(status_code=401, detail="Invalid credentials")
+
+#         payload = {
+#             "sub": user.email,
+#             "role": user_exists["role"],
+#             "exp": datetime.now(timezone.utc)
+#             + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
+#         }
+#         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+#         return {"token": token, "token_type": "bearer"}
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+
+
 @router.post("/login")
 async def login(user: UserLogin):
     try:
@@ -49,15 +76,23 @@ async def login(user: UserLogin):
         payload = {
             "sub": user.email,
             "role": user_exists["role"],
-            "exp": datetime.now(timezone.utc)
-            + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
+        # ? Safely update token
+        user_ref = db.collection("users").document(user.email)
+        if user_ref.get().exists:
+            user_ref.update({"token": token})
+        else:
+            raise HTTPException(status_code=404, detail="User not found during token update")
+
         return {"token": token, "token_type": "bearer"}
+
     except HTTPException:
         raise
     except Exception as e:
+        print(f"?? Login Error: {e}")  # See actual cause
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
