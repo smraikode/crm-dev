@@ -10,20 +10,6 @@ import jwt
 db = firestore.client()
 
 
-# def create_user(user: User):
-#     user_ref = db.collection("users").document(user.email)
-#     user_ref.set(
-#         {
-#             "name": user.name,
-#             "lastName": user.lastName,
-#             "email": user.email,
-#             "phone": user.phone,
-#             "role": "employee",
-#             "password": hash_password(user.password),
-#         }
-#     )
-
-
 def create_user(user: User):
     user_ref = db.collection("users").document(user.email)
     user_ref.set(
@@ -34,9 +20,10 @@ def create_user(user: User):
             "phone": user.phone,
             "role": "employee",
             "password": hash_password(user.password),
-            "token": "",  # <--- ADD THIS LINE
         }
     )
+
+
 
 
 def get_user_by_email(email: str):
