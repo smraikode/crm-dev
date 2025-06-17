@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import getDecodedToken from "../../utils/decodeToken"; 
 import {
   FaTachometerAlt,
   FaUserFriends,
@@ -12,148 +13,261 @@ import {
   FaChevronRight,
   FaChevronDown,
   FaUserCheck,
-  FaUser,
-  FaUsers,
+  FaBars,
+  FaTimes,
+  FaUserCircle,
+  FaClipboardList,
 } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-function Sidebar() {
+const Sidebar = () => {
   const [openSubmenus, setOpenSubmenus] = useState({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleSubmenu = (label) => {
-    setOpenSubmenus((prev) => ({ ...prev, [label]: !prev[label] }));
+    setOpenSubmenus((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }));
   };
 
+  const isActive = (path) => location.pathname.startsWith(path);
+  const decoded = getDecodedToken(); 
+
+  const userRole = decoded?.role || "";
+
   const menuItems = [
-    {
-      label: "Dashboard",
-      icon: <FaTachometerAlt />,
-      path: "/dashboard",
-      // submenu: [
-      //   { label: "Overview", path: "/dashboard/overview" },
-      //   { label: "Analytics", path: "/dashboard/analytics" },
-      // ],
-    },
-    {
-      label: "Leads",
-      icon: <FaUserFriends />,
-      path: "/leads",
-      submenu: [
-        { label: "All Leads", path: "/leads/all" },
-        { label: "New Lead", path: "/leads/new" },
-      ],
-    },
-    {
-      label: "Projects",
-      icon: <FaProjectDiagram />,
-      path: "/projects",
-      submenu: [
-        { label: "All Projects", path: "/dashboard/overview" },
-        { label: "Analytics", path: "/dashboard/analytics" },
-      ],
-    },
-    {
-      label: "Properties",
-      icon: <FaHome />,
-      path: "/properties",
-    },
-    {
-      label: "Reports",
-      icon: <FaChartBar />,
-      path: "/reports", submenu: [
-        { label: "My Reports", path: "/reports/my" },
-        { label: "Team Reports", path: "/reports/team" },
-        { label: "Company Reports", path: "/reports/team" },
-      ],
-    },
-    {
-      label: "Tasks",
-      icon: <FaTasks />,
-      path: "/tasks",
-      submenu: [
-        { label: "My Tasks", path: "/tasks/my" },
-        { label: "Team Tasks", path: "/tasks/team" },
-      ],
-    },
-    {
-      label: "Attendance",
-      icon: <FaUserCheck />,
-      submenu: [
-        { label: "My Attendance", path: "/attendance/my" },
-        { label: "Team Attendance", path: "/attendance/team" },
-      ],
-    },
-  ];  
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Dashboard",
+          icon: <FaTachometerAlt />,
+          path: "/dashboard",
+        },
+      ]
+      : []),
 
-  return (
-    <div className="w-56 h-screen bg-[#0e1e49] text-white flex flex-col justify-between p-4 fixed top-0 left-0 z-50">
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Leads",
+          icon: <FaUserFriends />,
+          path: "/leads",
+          submenu: [
+            { label: "All Leads", path: "/leads/all" },
+            { label: "New Lead", path: "/leads/new" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Projects",
+          icon: <FaProjectDiagram />,
+          path: "/projects",
+          submenu: [
+            { label: "All Projects", path: "/projects/all" },
+            { label: "Analytics", path: "/projects/analytics" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Properties",
+          icon: <FaHome />,
+          path: "/properties",
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Reports",
+          icon: <FaChartBar />,
+          path: "/reports",
+          submenu: [
+            { label: "My Reports", path: "/reports/my" },
+            { label: "Team Reports", path: "/reports/team" },
+            { label: "Company Reports", path: "/reports/company" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Tasks",
+          icon: <FaTasks />,
+          path: "/tasks",
+          submenu: [
+            { label: "My Tasks", path: "/tasks/my" },
+            { label: "Team Tasks", path: "/tasks/team" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Attendance",
+          icon: <FaUserCheck />,
+          submenu: [
+            { label: "My Attendance", path: "/attendance/my" },
+            { label: "Team Attendance", path: "/attendance/team" },
+            { label: "My Timeline", path: "/attendance/mytimeline" },
+          ],
+        },
+      ]
+      : []),
+
+    ...(userRole === "admin"
+      ? [
+        {
+          label: "Manage Roles",
+          icon: <FaUserCircle />,
+          path: "/assign-role",
+        },
+      ]
+      : []),
+  ];
+
+
+  // Close sidebar on navigation (mobile)
+  const handleNav = () => setSidebarOpen(false);
+
+  // Sidebar content
+  const sidebarContent = (
+    <div className="flex flex-col h-full min-h-0">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-6">
-          <FaRegGem className="text-orange-400 text-2xl" />
-          <h1 className="text-2xl font-bold text-orange-400">Unknown</h1>
-        </div>
+      <div className="flex items-center gap-4 mb-6 px-1 min-w-0">
+        <FaRegGem className="text-orange-400 text-lg xs:text-xl sm:text-2xl" />
+        <h1
+          className="font-bold text-orange-400 text-base xs:text-lg sm:text-xl md:text-2xl whitespace-nowrap truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[200px] md:max-w-[240px] mt-1"
+          title="Menu"
+        >
+          Menu
+        </h1>
+      </div>
 
-        {/* Menu Items */}
-        <ul className="space-y-4">
-          {menuItems.map((item) => (
-            <li key={item.label} className="cursor-pointer">
-              {item.submenu ? (
-                <>
-                  <div
-                    onClick={() => toggleSubmenu(item.label)}
-                    className="flex items-center justify-between px-2 py-2 rounded hover:bg-gray-500"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">{item.icon}</span>
-                      <span>{item.label}</span>
+
+      {/* Navigation */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <ul className="space-y-2">
+          {menuItems.map((item) => {
+            const isSubmenuOpen = openSubmenus[item.label];
+            const active = isActive(item.path || "");
+            return (
+              <li key={item.label}>
+                {item.submenu ? (
+                  <>
+                    <div
+                      onClick={() => toggleSubmenu(item.label)}
+                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base sm:text-lg">
+                          {item.icon}
+                        </span>
+                        <span className="text-xs xs:text-sm sm:text-base">
+                          {item.label}
+                        </span>
+                      </div>
+                      {isSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
                     </div>
-                    {openSubmenus[item.label] ? <FaChevronDown /> : <FaChevronRight />}
-                  </div>
-
-                  {openSubmenus[item.label] && (
-                    <div className="relative ml-8 mt-2">
-                      <div className="absolute left-2 top-0 bottom-0 border-l-2 border-gray-400" />
-                      <ul className="space-y-2 pl-4">
+                    {isSubmenuOpen && (
+                      <ul className="pl-7 mt-1 space-y-1">
                         {item.submenu.map((sub) => (
-                          <Link key={sub.path} to={sub.path}>
-                            <li className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-500">
-                              {sub.icon && <span className="text-sm">{sub.icon}</span>}
+                          <Link
+                            key={sub.path}
+                            to={sub.path}
+                            onClick={handleNav}
+                          >
+                            <li
+                              className={`px-2 py-1 rounded hover:bg-gray-500 ${isActive(sub.path) ? "bg-gray-700" : ""
+                                } text-xs sm:text-sm`}
+                            >
                               {sub.label}
                             </li>
                           </Link>
                         ))}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Link to={item.path}>
-                  <div className="flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-500">
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </div>
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
 
-        {/* Settings & Logout */}
-        <div className="mt-8 space-y-4">
-          <div className="flex items-center gap-3 px-2 py-2 hover:bg-gray-500 rounded cursor-pointer">
-            <FaCog className="text-lg" />
-            <span>Settings</span>
-          </div>
-          <div className="flex items-center gap-3 px-2 py-2 hover:bg-gray-500 rounded cursor-pointer text-orange-400 hover:text-red-300">
-            <FaSignOutAlt className="text-lg" />
-            <span>Logout</span>
-          </div>
-        </div>
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <Link to={item.path} onClick={handleNav}>
+                    <div
+                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
+                    >
+                      <span className="text-base sm:text-lg">{item.icon}</span>
+                      <span className="text-xs xs:text-sm sm:text-base">
+                        {item.label}
+                      </span>
+                    </div>
+                  </Link>
+                )}
+
+              </li>
+            );
+          })}
+        </ul>
       </div>
+
     </div>
   );
-}
+
+  return (
+    <>
+      {/* Hamburger Button (Mobile/Tablet) */}
+      <button
+        className="fixed top-3 left-3 z-50 md:hidden bg-[#0e1e49] text-white p-2 rounded shadow-lg focus:outline-none"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <FaBars size={20} />
+      </button>
+
+      {/* Sidebar Overlay (Mobile) */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden transition-all duration-300"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <div
+            className="fixed top-0 left-0 h-full w-44 sm:w-48 md:w-56 max-w-xs bg-[#0e1e49] text-white p-3 z-50 shadow-lg transition-all duration-300"
+            style={{ maxHeight: "100dvh" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-3 text-white text-xl"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <FaTimes />
+            </button>
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar (Desktop/Tablet) */}
+      <div className="hidden md:flex flex-col w-44 lg:w-56 xl:w-64 max-w-xs h-screen bg-[#0e1e49] text-white fixed top-0 left-0 z-30 p-3 transition-all duration-300">
+        {sidebarContent}
+      </div>
+    </>
+  );
+};
 
 export default Sidebar;
