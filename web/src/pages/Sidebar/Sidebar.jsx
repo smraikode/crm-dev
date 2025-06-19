@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import getDecodedToken from "../../utils/decodeToken"; 
+import getDecodedToken from "../../utils/decodeToken";
 import {
   FaTachometerAlt,
   FaUserFriends,
@@ -16,7 +16,6 @@ import {
   FaBars,
   FaTimes,
   FaUserCircle,
-  FaClipboardList,
 } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -34,121 +33,100 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => location.pathname.startsWith(path);
-  const decoded = getDecodedToken(); 
-
+  const decoded = getDecodedToken();
   const userRole = decoded?.role || "";
 
+  // Define menu items based on role
   const menuItems = [
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Dashboard",
-          icon: <FaTachometerAlt />,
-          path: "/dashboard",
-        },
-      ]
-      : []),
+    {
+      label: "Dashboard",
+      icon: <FaTachometerAlt />,
+      path: "/dashboard",
+    },
 
     ...(userRole === "admin"
       ? [
-        {
-          label: "Leads",
-          icon: <FaUserFriends />,
-          path: "/leads",
-          submenu: [
-            { label: "All Leads", path: "/leads/all" },
-            { label: "New Lead", path: "/leads/new" },
-          ],
-        },
-      ]
+          {
+            label: "Leads",
+            icon: <FaUserFriends />,
+            path: "/leads",
+            submenu: [
+              { label: "All Leads", path: "/leads/all" },
+              { label: "New Lead", path: "/leads/new" },
+            ],
+          },
+          {
+            label: "Projects",
+            icon: <FaProjectDiagram />,
+            path: "/projects",
+            submenu: [
+              { label: "All Projects", path: "/projects/all" },
+              { label: "Analytics", path: "/projects/analytics" },
+            ],
+          },
+          {
+            label: "Properties",
+            icon: <FaHome />,
+            path: "/properties",
+          },
+        ]
       : []),
+
+    {
+      label: "Reports",
+      icon: <FaChartBar />,
+      path: "/reports",
+      submenu: [
+        { label: "My Reports", path: "/reports/my" },
+        ...(userRole === "admin"
+          ? [
+              { label: "Team Reports", path: "/reports/team" },
+              { label: "Company Reports", path: "/reports/company" },
+            ]
+          : []),
+      ],
+    },
+
+    {
+      label: "Tasks",
+      icon: <FaTasks />,
+      path: "/tasks",
+      submenu: [
+        { label: "My Tasks", path: "/tasks/my" },
+        ...(userRole === "admin"
+          ? [{ label: "Team Tasks", path: "/tasks/team" }]
+          : []),
+      ],
+    },
+
+    {
+      label: "Attendance",
+      icon: <FaUserCheck />,
+      submenu: [
+        { label: "My Attendance", path: "/attendance/my" },
+        { label: "My Timeline", path: "/attendance/mytimeline" },
+        ...(userRole === "admin"
+          ? [{ label: "Team Attendance", path: "/attendance/team" }]
+          : []),
+      ],
+    },
 
     ...(userRole === "admin"
       ? [
-        {
-          label: "Projects",
-          icon: <FaProjectDiagram />,
-          path: "/projects",
-          submenu: [
-            { label: "All Projects", path: "/projects/all" },
-            { label: "Analytics", path: "/projects/analytics" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Properties",
-          icon: <FaHome />,
-          path: "/properties",
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Reports",
-          icon: <FaChartBar />,
-          path: "/reports",
-          submenu: [
-            { label: "My Reports", path: "/reports/my" },
-            { label: "Team Reports", path: "/reports/team" },
-            { label: "Company Reports", path: "/reports/company" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Tasks",
-          icon: <FaTasks />,
-          path: "/tasks",
-          submenu: [
-            { label: "My Tasks", path: "/tasks/my" },
-            { label: "Team Tasks", path: "/tasks/team" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Attendance",
-          icon: <FaUserCheck />,
-          submenu: [
-            { label: "My Attendance", path: "/attendance/my" },
-            { label: "Team Attendance", path: "/attendance/team" },
-            { label: "My Timeline", path: "/attendance/mytimeline" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Manage Roles",
-          icon: <FaUserCircle />,
-          path: "/assign-role",
-        },
-      ]
+          {
+            label: "Manage Roles",
+            icon: <FaUserCircle />,
+            path: "/assign-role",
+          },
+        ]
       : []),
   ];
 
-
-  // Close sidebar on navigation (mobile)
+  // Close sidebar on mobile after clicking a link
   const handleNav = () => setSidebarOpen(false);
 
-  // Sidebar content
   const sidebarContent = (
     <div className="flex flex-col h-full min-h-0">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6 px-1 min-w-0">
         <FaRegGem className="text-orange-400 text-lg xs:text-xl sm:text-2xl" />
         <h1
@@ -159,21 +137,21 @@ const Sidebar = () => {
         </h1>
       </div>
 
-
-      {/* Navigation */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const isSubmenuOpen = openSubmenus[item.label];
             const active = isActive(item.path || "");
+
             return (
               <li key={item.label}>
                 {item.submenu ? (
                   <>
                     <div
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${active ? "bg-gray-700" : ""
-                        }`}
+                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${
+                        active ? "bg-gray-700" : ""
+                      }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-base sm:text-lg">
@@ -188,28 +166,25 @@ const Sidebar = () => {
                     {isSubmenuOpen && (
                       <ul className="pl-7 mt-1 space-y-1">
                         {item.submenu.map((sub) => (
-                          <Link
-                            key={sub.path}
-                            to={sub.path}
-                            onClick={handleNav}
-                          >
+                          <Link key={sub.path} to={sub.path} onClick={handleNav}>
                             <li
-                              className={`px-2 py-1 rounded hover:bg-gray-500 ${isActive(sub.path) ? "bg-gray-700" : ""
-                                } text-xs sm:text-sm`}
+                              className={`px-2 py-1 rounded hover:bg-gray-500 ${
+                                isActive(sub.path) ? "bg-gray-700" : ""
+                              } text-xs sm:text-sm`}
                             >
                               {sub.label}
                             </li>
                           </Link>
                         ))}
-
                       </ul>
                     )}
                   </>
                 ) : (
                   <Link to={item.path} onClick={handleNav}>
                     <div
-                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${active ? "bg-gray-700" : ""
-                        }`}
+                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${
+                        active ? "bg-gray-700" : ""
+                      }`}
                     >
                       <span className="text-base sm:text-lg">{item.icon}</span>
                       <span className="text-xs xs:text-sm sm:text-base">
@@ -218,13 +193,11 @@ const Sidebar = () => {
                     </div>
                   </Link>
                 )}
-
               </li>
             );
           })}
         </ul>
       </div>
-
     </div>
   );
 

@@ -6,6 +6,8 @@ from models.user import User
 from utils.security import hash_password, verify_password
 from firebase_admin.auth import verify_id_token
 import jwt
+from datetime import datetime
+
 
 db = firestore.client()
 
@@ -41,20 +43,7 @@ def verify_user(email: str, password: str):
     return None
 
 
-# def add_location(email: str, longitude: float, latitude: float):
-#     try:
-#         user_location_ref = db.collection("user_location")
-#         user_location_ref.add(
-#             {
-#                 "email": email,
-#                 "longitude": longitude,
-#                 "latitude": latitude,
-#                 "updated_at": firestore.SERVER_TIMESTAMP,
-#             }
-#         )
-#         return True
-#     except Exception as e:
-#         return False
+
 
 
 def add_location(email: str, longitude: float, latitude: float, status: str):
@@ -99,3 +88,37 @@ def verify_jwt_token(token: str):
     except Exception as e:
         print(f"JWT verification failed: {e}")
         return None
+    
+
+
+    from firebase_admin import firestore
+
+# def get_all_user_locations_details():
+#     db = firestore.client()
+#     docs = db.collection("user_location").stream()
+#     result = []
+#     for doc in docs:
+#         data = doc.to_dict()
+#         # data["id"] = doc.id  # Exclude if you don't want the Firestore doc ID
+#         result.append(data)
+#     return result
+
+def get_all_user_locations_details():
+    db = firestore.client()
+    docs = db.collection("user_location").stream()
+    result = []
+
+    for doc in docs:
+        data = doc.to_dict()
+        
+        # Convert Firestore timestamp to Python datetime object for proper sorting
+        if "updated_at" in data and hasattr(data["updated_at"], "isoformat"):
+            data["updated_at"] = data["updated_at"].isoformat()
+        
+        result.append(data)
+
+    # Sort result by 'updated_at' in descending order (latest first)
+    result.sort(key=lambda x: x.get("updated_at", ""), reverse=True)
+
+    return result
+

@@ -2,34 +2,46 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Install Backend Dependencies",
+      "type": "shell",
+      "command": "pip",
+      "args": ["install", "-r", "requirements.txt"],
+      "options": {
+        "cwd": "${workspaceFolder}\\api"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Start Backend",
       "type": "shell",
       "command": "python",
-      "args": [
-        "-m",
-        "uvicorn",
-        "main:app",
-        "--reload"
-      ],
+      "args": ["-m", "uvicorn", "main:app", "--reload"],
       "options": {
         "cwd": "${workspaceFolder}\\api\\src"
       },
       "problemMatcher": [],
-      "group": "build"
+      "dependsOn": ["Install Backend Dependencies"]
+    },
+    {
+      "label": "Install Frontend Dependencies",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "options": {
+        "cwd": "${workspaceFolder}\\web"
+      },
+      "problemMatcher": []
     },
     {
       "label": "Start Frontend",
       "type": "shell",
       "command": "npm",
-      "args": [
-        "run",
-        "dev"
-      ],
+      "args": ["run", "dev"],
       "options": {
         "cwd": "${workspaceFolder}\\web"
       },
       "problemMatcher": [],
-      "group": "build"
+      "dependsOn": ["Install Frontend Dependencies"]
     },
     {
       "label": "Start Full Stack",

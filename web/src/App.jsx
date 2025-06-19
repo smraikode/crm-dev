@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./componets/Navbar/protectedRoutes";
 import getDecodedToken from "./utils/decodeToken";
+import MyTeamAttendance from "./pages/Attendance/MyTeamAttendance";
 
 function App() {
   const decoded = getDecodedToken();
@@ -25,9 +26,14 @@ function App() {
 
         {/* Directly render Home and nested routes under it */}
         <Route path="/" element={<Home />}>
+          <Route index element={<Navigate to="dashboard" />} /> {/* 👈 Add this line */}
+
           <Route path="dashboard" element={<Dashborad />} />
           <Route path="leads" element={<ViewAllLeads />} />
           <Route path="attendance/mytimeline" element={<MyTimeline />} />
+          <Route path="attendance/team" element={<MyTeamAttendance />} />
+
+
 
           <Route
             path="assign-role"

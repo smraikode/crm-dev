@@ -2,3 +2,4 @@ api/__pycache__/
 api/src/serviceAccountKey.json
 __pycache__/
 *.pyc
+api/.env
