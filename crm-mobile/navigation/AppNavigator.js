@@ -5,29 +5,17 @@ import AttendanceScreen from '../screens/AttendanceScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import PayrollScreen from '../screens/PayrollScreen';
-import LiveLocationScreen from '../screens/LiveLocationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SplashScreen from '../screens/SplashScreen';
 import AttendanceToday from '../screens/AttendanceToday';
 import ApplyLeaveScreen from '../screens/ApplyLeaveScreen';
+import NotificationScreen from '../screens/NotificationScreen';
+import SiteInstructionScreen from '../screens/SiteInstructionScreen';
+import SupervisorHandlingScreen from '../screens/SupervisiorScreen/SupervisorHandlingScreen';
 
 
 const Stack = createNativeStackNavigator();
 
-// export default function AppNavigator() {
-//   return (
-//     <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: true }}>
-//       <Stack.Screen name="Login" component={LoginScreen} />
-//       <Stack.Screen name="Dashboard" component={DashboardScreen} />
-//       <Stack.Screen name="Attendance" component={AttendanceScreen} />
-//       <Stack.Screen name="History" component={HistoryScreen} />
-//       <Stack.Screen name="Reports" component={ReportsScreen} />
-//       <Stack.Screen name="Payroll" component={PayrollScreen} />
-//       <Stack.Screen name="LiveLocation" component={LiveLocationScreen} />
-//       <Stack.Screen name="Profile" component={ProfileScreen} />
-//     </Stack.Navigator>
-//   );
-// }
 
 export default function AppNavigator() {
   return (
@@ -38,11 +26,16 @@ export default function AppNavigator() {
       <Stack.Screen name="Attendance" component={AttendanceScreen} />
       <Stack.Screen name="AttendanceToday" component={AttendanceToday} />
       <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} />
+      <Stack.Screen name="SiteInstruction" component={SiteInstructionScreen} />
       <Stack.Screen name="History" component={HistoryScreen} />
       <Stack.Screen name="Reports" component={ReportsScreen} />
       <Stack.Screen name="Payroll" component={PayrollScreen} />
-      <Stack.Screen name="LiveLocation" component={LiveLocationScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+
+      <Stack.Screen name="SupervisorHandling" component={SupervisorHandlingScreen} />
+
     </Stack.Navigator>
   );
 }
+

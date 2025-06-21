@@ -8,19 +8,20 @@ export default function DashboardScreen() {
   const navigation = useNavigation();
   const screenWidth = Dimensions.get('window').width;
 
+
   const menuItems = [
     { title: 'Attendance', screen: 'Attendance', icon: 'calendar-outline' },
     { title: 'History', screen: 'History', icon: 'time-outline' },
     { title: 'Reports', screen: 'Reports', icon: 'document-text-outline' },
     { title: 'Payroll', screen: 'Payroll', icon: 'cash-outline' },
-    { title: 'Location', screen: 'LiveLocation', icon: 'location-outline' },
+    { title: 'Notification', screen: 'Notification', icon: 'notifications-outline' },
     { title: 'Profile', screen: 'Profile', icon: 'person-circle-outline' },
   ];
 
   const quickActions = [
     { title: 'Apply Leave', icon: 'paper-plane-outline', screen: 'ApplyLeave' },
-    { title: 'Apply WFH', icon: 'home-outline', screen: '' },
-    { title: 'Raise Expense', icon: 'cash-outline', screen: '' },
+    { title: 'Site Instructions', icon: 'newspaper-outline', screen: 'SiteInstruction' },
+    { title: 'Supervisor Panel', icon: 'person-outline', screen: 'SupervisorHandling' },
     { title: 'Leave Balance', icon: 'briefcase-outline', screen: '' },
   ];
 
