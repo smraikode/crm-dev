@@ -321,7 +321,7 @@ export default function AttendanceScreen() {
       siteLocation.longitude
     );
 
-    if (distance <= 100) {
+    if (distance <= 1000) {
       setIsClockedIn(true);
       Alert.alert('✅ Clock In', 'You have clocked in successfully');
       await sendLocationToBackend(location, 'clockin');
@@ -343,7 +343,7 @@ export default function AttendanceScreen() {
           siteLocation.longitude
         );
 
-        if (dist > 100) {
+        if (dist > 1000) {
           setIsClockedIn(false);
           await sendLocationToBackend(coords, 'auto-clockout');
           clearInterval(intervalRef.current);
