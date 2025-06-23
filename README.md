@@ -19,15 +19,17 @@ A simple **CRM (Customer Relationship Management)** development project.
 
 ```bash
 git clone https://github.com/your-username/crm-dev.git
+
+---
+
 2. Install Frontend Dependencies (React Native)
-bash
-Copy
-Edit
+
 cd crm-dev
 npm install
+
+---
 3. Start the React Native App
-bash
-Copy
+
 Edit
 npm start
 Make sure you have expo-cli installed globally:
