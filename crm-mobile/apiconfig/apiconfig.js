@@ -1,8 +1,8 @@
-// const LOCAL_URL = "http://localhost:8000/api"; // 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
+const LOCAL_URL = "http://localhost:8000/api"; // 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
 // const STAGING_URL = "https://stgfastapi.selfsync.ai";
 // const PROD_URL = "https://fastapi.selfsync.ai";
 
-const LOCAL_URL = "http://10.0.0.25:8000/api"; // 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
+// const LOCAL_URL = "http://10.0.0.25:8000/api"; // 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
 
 
 const environments = {
