@@ -19,7 +19,7 @@ class UserSignup(BaseModel):
     email: EmailStr
     phone: str
     password: str
-    role: str
+    role: Optional[str] = "employee"  # ✅ Default value
 
 
 class UserLogin(BaseModel):
@@ -29,6 +29,7 @@ class UserLogin(BaseModel):
 
 @router.post("/signup")
 async def signup(user: UserSignup):
+    print("🚀 /signup endpoint hit")
     try:
         # Check if user already exists by email only
         if get_user_by_email(user.email):
@@ -44,6 +45,7 @@ async def signup(user: UserSignup):
 
 @router.post("/login")
 async def login(user: UserLogin):
+    print("🚀 /login endpoint hit")
     try:
         user_exists = verify_user(user.email, user.password)
         if not user_exists:
@@ -64,7 +66,10 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-
+@router.post("/logout")
+async def logout():
+  
+    return {"message": "Successfully logged out"}
 
 
 

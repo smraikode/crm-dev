@@ -22,7 +22,7 @@ export default function DashboardScreen() {
     { title: 'Apply Leave', icon: 'paper-plane-outline', screen: 'ApplyLeave' },
     { title: 'Site Instructions', icon: 'newspaper-outline', screen: 'SiteInstruction' },
     { title: 'Supervisor Panel', icon: 'person-outline', screen: 'SupervisorHandling' },
-    { title: 'Leave Balance', icon: 'briefcase-outline', screen: '' },
+    { title: 'My Timeline', icon: 'briefcase-outline', screen: 'MyTimeline' },
   ];
 
   const shifts = ['General (9AM - 6PM)', 'Morning (6AM - 3PM)', 'Night (9PM - 6AM)'];
