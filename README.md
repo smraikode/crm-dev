@@ -30,9 +30,9 @@ A simple CRM (Customer Relationship Management) development project.
 ⚙️ Backend Setup (FastAPI)
 
 1.Navigate to the backend directory where your main.py is located:
-            cd api/src
+            ------> cd api/src
 2.Run the backend server with:
-           uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+           ---> uvicorn main:app --host 0.0.0.0 --port 8000 --reload
            
 🧠 Why 0.0.0.0 instead of 127.0.0.1?
 When running on mobile, using 127.0.0.1 or localhost won’t work because that refers to the phone’s own loopback.
@@ -41,9 +41,9 @@ Instead, 0.0.0.0 exposes your backend to your local network, so your phone can a
  ##🔌 Connect React Native to FastAPI
  
  1.Open this file in the frontend project:
-        crm-mobile/apiconfig.js
+        --------> crm-mobile/apiconfig.js
  2.Replace the API base URL with your local machine’s IP address:
-       const LOCAL_URL = "http://10.0.0.25:8000/api"; // Replace with your own IP address
+       -----------> const LOCAL_URL = "http://10.0.0.25:8000/api"; // Replace with your own IP address
        
 ✅ To find your local IP address:
 On Windows: ipconfig
