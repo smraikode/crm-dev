@@ -1,5 +1,7 @@
+
+
 # import firebase_admin
-# from firebase_admin import credentials
+# from firebase_admin import credentials,firestore 
 # import os
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -7,6 +9,9 @@
 # cred = credentials.Certificate(cred_path)
 # firebase_admin.initialize_app(cred)
 
+
+# # ? Export Firestore client
+# db = firestore.client()
 
 import firebase_admin
 from firebase_admin import credentials,firestore 
@@ -18,5 +23,6 @@ cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 
 
-# ? Export Firestore client
+# ✅ Export Firestore client
 db = firestore.client()
+

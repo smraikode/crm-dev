@@ -1,47 +1,5 @@
 
 
-// import React from 'react';
-// import { ScrollView, Text, View } from 'dripsy';
-// import { mockAttendanceLogs } from '../utils/mockData';
-// import HistoryCard from '../components/HistoryCard';
-// import { Dimensions } from 'react-native';
-
-
-// export default function HistoryScreen() {
-//   const screenHeight = Dimensions.get('window').height;
-
-//   return (
-//     <ScrollView
-//       sx={{
-//         flex: 1,
-//         bg: 'white',
-//         px: 3,
-//         pt: screenHeight * 0.06, //from top
-//         pb: 5,
-//       }}
-//     >
-//       {/* Page Header */}
-//       <Text
-//         sx={{
-//           fontSize: 22,
-//           fontWeight: 'bold',
-//           color: '#111827',
-//           mb: 20,
-//           mt: 10,
-//           textAlign: 'center',
-//         }}
-//       >
-//         📅 Attendance History
-//       </Text>
-
-//       {/* History Cards */}
-//       {mockAttendanceLogs.map((log, index) => (
-//         <HistoryCard key={index} log={log} />
-//       ))}
-//     </ScrollView>
-//   );
-// }
-
 import React, { useState } from 'react';
 import { ScrollView, Text, View, Pressable } from 'dripsy';
 import { Dimensions, Platform } from 'react-native';
