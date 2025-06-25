@@ -37,10 +37,10 @@ export const mockPayroll = {
 };
 
 export const mockProfile = {
-  name: 'Sreenivas Bandaru',
+  name: 'Ramu chacha',
   role: 'Site Supervisor',
   site: 'Hyderabad Metro Project',
-  image: 'https://randomuser.me/api/portraits/men/32.jpg', // sample photo
+  image: 'https://www.pngitem.com/pimgs/m/159-1598258_thor-best-queality-png-photo-avengers-thor-png.png', // sample photo
   language: 'English',
 };
 
