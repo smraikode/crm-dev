@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, Pressable } from 'dripsy';
 import { Dimensions, Platform } from 'react-native';
@@ -18,6 +19,19 @@ export default function HistoryScreen() {
   useEffect(() => {
     fetchTimeline();
   }, [selectedDate]);
+
+  const formatDuration = (ms) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const hrs = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+
+    if (hrs > 0) {
+      return `${hrs} hrs ${mins} mins ${secs} sec`;
+    } else {
+      return `${mins} mins ${secs} sec`;
+    }
+  };
 
   const fetchTimeline = async () => {
     try {
@@ -60,21 +74,15 @@ export default function HistoryScreen() {
         let lateDuration = '';
         let earlyLogout = '';
 
-        // Late logic
         if (clockInDate && clockInDate >= shiftStart) {
           const diffMs = clockInDate - shiftStart;
-          const mins = Math.floor(diffMs / 60000);
-          const secs = Math.floor((diffMs % 60000) / 1000);
-          lateDuration = `${mins} mins ${secs} sec`;
+          lateDuration = formatDuration(diffMs);
           status = 'Late';
         }
 
-        // Early logout logic
         if (clockOutDate && clockOutDate < shiftEnd) {
           const diffMs = shiftEnd - clockOutDate;
-          const mins = Math.floor(diffMs / 60000);
-          const secs = Math.floor((diffMs % 60000) / 1000);
-          earlyLogout = `${mins} mins ${secs} sec early logout`;
+          earlyLogout = `${formatDuration(diffMs)} early logout`;
         }
 
         const effectiveMs =
