@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { View, Text } from 'dripsy';
 
@@ -11,7 +12,6 @@ export default function HistoryCard({ log }) {
         borderWidth: 1,
         borderColor: '#E5E7EB',
         p: 6,
-        mb: 15,
         mb: 15,
         mx: 12,
         shadowColor: '#000',
@@ -37,7 +37,9 @@ export default function HistoryCard({ log }) {
       </View>
 
       {/* Shift Info */}
-      <Text sx={{ fontSize: 13, color: '#6B7280', mb: 3 }}>🕒 Shift: {log.shift}</Text>
+      <Text sx={{ fontSize: 13, color: '#6B7280', mb: 3 }}>
+        🕒 Shift: {log.shift}
+      </Text>
 
       {/* Clock In & Clock Out */}
       <View
@@ -62,6 +64,13 @@ export default function HistoryCard({ log }) {
         </View>
       </View>
 
+      {/* Early Logout Message */}
+      {log.earlyLogout && (
+        <Text sx={{ fontSize: 13, color: '#DC2626', mb: 2 }}>
+          🔻 {log.earlyLogout}
+        </Text>
+      )}
+
       {/* Hours Summary */}
       <View
         sx={{
@@ -73,12 +82,15 @@ export default function HistoryCard({ log }) {
         }}
       >
         <Text sx={{ fontSize: 13, color: '#374151' }}>
-          ⏱ Effective Hours: <Text sx={{ fontWeight: '500' }}>{log.effectiveHours}</Text>
+          ⏱ Effective Hours:{' '}
+          <Text sx={{ fontWeight: '500' }}>{log.effectiveHours}</Text>
         </Text>
         <Text sx={{ fontSize: 13, color: '#374151' }}>
-          🧾 Gross Hours: <Text sx={{ fontWeight: '500' }}>{log.grossHours}</Text>
+          🧾 Gross Hours:{' '}
+          <Text sx={{ fontWeight: '500' }}>{log.grossHours}</Text>
         </Text>
       </View>
     </View>
   );
 }
+

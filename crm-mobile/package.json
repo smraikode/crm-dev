@@ -20,6 +20,7 @@
     "expo": "53.0.12",
     "expo-location": "~18.1.5",
     "expo-status-bar": "~2.2.3",
+    "jwt-decode": "^4.0.0",
     "react": "19.0.0",
     "react-native": "0.79.4",
     "react-native-gesture-handler": "~2.24.0",

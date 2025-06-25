@@ -3,7 +3,7 @@ from jose import JWTError
 from pydantic import BaseModel
 from typing import Optional
 import jwt
-from datetime import datetime, timezone
+from datetime import datetime, timezone,timedelta
 from services.firestore_service import add_location, get_all_user_locations_details
 from env import SECRET_KEY, ALGORITHM
 from fastapi import Query
@@ -78,49 +78,6 @@ async def get_team_attendance(authorization: Optional[str] = Header(None)):
 
 
 
-# @router.get("/mytimeline/user")
-# async def get_user_timeline(authorization: Optional[str] = Header(None)):
-#     if not authorization or not authorization.startswith("Bearer "):
-#         raise HTTPException(status_code=401, detail="Missing or invalid token")
-#     token = authorization.split(" ")[1]
-#     try:
-#         decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         email = decoded.get("email") or decoded.get("sub")
-#         if not email:
-#             raise HTTPException(status_code=400, detail="Token missing email")
-#     except jwt.PyJWTError:
-#         raise HTTPException(status_code=401, detail="Invalid token")
-
-#     user_location_ref = db.collection("user_location")
-#     try:
-#         docs = user_location_ref.where("email", "==", email).stream()
-#     except Exception as e:
-#         print("Firestore query error:", e)
-#         raise HTTPException(status_code=500, detail="Error fetching from Firestore")
-
-#     entries = []
-#     for doc in docs:
-#         data = doc.to_dict()
-#         ts = data.get("updated_at")
-#         if not ts:
-#             continue
-#         entries.append({
-#             "status": data.get("status"),
-#             "timestamp": ts.isoformat()
-#         })
-
-#     if not entries:
-#         raise HTTPException(status_code=404, detail="No timeline found")
-
-#     # Sort descending (latest first)
-#     entries.sort(key=lambda x: x["timestamp"], reverse=True)
-
-#     return {
-#         "email": email,
-#         "timeline": entries
-#     }
-
-
 
 @router.get("/mytimeline/user")
 async def get_user_timeline(
@@ -174,3 +131,64 @@ async def get_user_timeline(
         "email": email,
         "timeline": timeline  # can be empty list
     }
+
+
+@router.get("/attendance/history")
+async def get_attendance_history(
+    date: Optional[str] = Query(None, description="Optional date in format YYYY-MM-DD"),
+    authorization: Optional[str] = Header(None)
+):
+    # ✅ Validate token
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    token = authorization.split(" ")[1]
+
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = decoded.get("email") or decoded.get("sub")
+        if not email:
+            raise HTTPException(status_code=400, detail="Token missing email")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    try:
+        db_ref = firestore.client().collection("user_location")
+        query = db_ref.where("email", "==", email)
+
+        if date:
+            try:
+                date_obj = datetime.strptime(date, "%Y-%m-%d")  # Expecting ISO date from frontend
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Date format should be YYYY-MM-DD")
+
+            # Define full day range in UTC
+            start = datetime(date_obj.year, date_obj.month, date_obj.day, 0, 0, 0, tzinfo=timezone.utc)
+            end = start + timedelta(days=1)
+
+            query = query.where("updated_at", ">=", start).where("updated_at", "<", end)
+
+        query = query.order_by("updated_at", direction=firestore.Query.DESCENDING)
+
+        docs = query.stream()
+        records = []
+
+        for doc in docs:
+            data = doc.to_dict()
+            timestamp = data.get("updated_at")
+            records.append({
+                "timestamp": timestamp.isoformat() if timestamp else None,
+                "status": data.get("status"),
+                "longitude": data.get("longitude"),
+                "latitude": data.get("latitude"),
+            })
+
+        return {
+            "email": email,
+            "count": len(records),
+            "date": date or "all",
+            "timeline": records
+        }
+
+    except Exception as e:
+        print("🔥 Error:", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch attendance records")
