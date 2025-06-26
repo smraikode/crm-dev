@@ -24,6 +24,7 @@ const apiEndpoints = {
   assignRole: `${activeEnvironment}/permissions/assign-role`,
   myTeamAttendance: `${activeEnvironment}/team/attendance`,
   attendanceHistory: `${activeEnvironment}/attendance/history`,
+  applyLeave: `${activeEnvironment}/apply-leave`,
 };
 
 export { activeEnvironment, apiEndpoints };

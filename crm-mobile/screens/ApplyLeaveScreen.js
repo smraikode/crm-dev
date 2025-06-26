@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { View, Dimensions, Platform } from 'react-native';
+
+import React, { useState, useEffect } from 'react';
+import { View, Dimensions, Platform, Alert, ActivityIndicator } from 'react-native';
 import { ScrollView, Pressable, Text, TextInput } from 'dripsy';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { apiEndpoints } from '../apiconfig/apiconfig';
 
 export default function ApplyLeaveScreen() {
   const screenHeight = Dimensions.get('window').height;
@@ -14,57 +19,96 @@ export default function ApplyLeaveScreen() {
     { label: 'Village Visit', icon: 'home-outline' },
     { label: 'Festival Leave', icon: 'sparkles-outline' },
   ];
-  
+
   const [selectedType, setSelectedType] = useState(leaveTypes[0].label);
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
   const [reason, setReason] = useState('');
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
+  const [worker, setWorker] = useState({ worker_id: 'CW-0000', site: 'Tunnel A' });
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
 
-  const handleSubmit = () => {
-    alert(`Leave applied for ${selectedType}\nFrom: ${fromDate.toDateString()} \nTo: ${toDate.toDateString()}`);
+  // ✅ Decode JWT token on mount and extract email
+  useEffect(() => {
+    const getEmailFromToken = async () => {
+      const token = await AsyncStorage.getItem('token');
+      console.log('Token:', token);
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          console.log('Decoded token:', decoded);
+          if (decoded?.sub) {
+            setEmail(decoded.sub);
+            console.log('Decoded email:', decoded.sub);
+          }
+        } catch (e) {
+          console.warn('Error decoding token:', e);
+        }
+      }
+    };
+    getEmailFromToken();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Token not found');
+
+      const payload = {
+        leave_type: selectedType,
+        from_date: fromDate.toISOString().split('T')[0],
+        to_date: toDate.toISOString().split('T')[0],
+        reason,
+        worker_id: worker.worker_id,
+        site: worker.site,
+      };
+
+      const res = await axios.post(apiEndpoints.applyLeave, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      Alert.alert('✅ Success', res.data.message, [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Second alert after pressing OK on the first one
+            Alert.alert('⏳ Please Wait', 'Your leave request is pending approval.');
+          },
+        },
+      ]);
+      setReason('');
+    } catch (err) {
+      console.error(err);
+      Alert.alert('❌ Error', err?.response?.data?.detail || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <View sx={{ flex: 1, bg: 'white' }}>
-      {/* Centered Title */}
-      <View
-        sx={{
-          height: screenHeight * 0.6,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Text sx={{ fontSize: 26, fontWeight: 'bold', color: '#1D4ED8',pt: 40,pl:70}}>
+      <View sx={{ height: screenHeight * 0.6, justifyContent: 'center', alignItems: 'center' }}>
+        <Text sx={{ fontSize: 26, fontWeight: 'bold', color: '#1D4ED8', pt: 40, pl: 70 }}>
           📝 Apply Leave
         </Text>
       </View>
 
-      {/* Main Form Section */}
-      <ScrollView
-        sx={{ px: 20, pt: 50, pb: 10 }}
-        contentContainerStyle={{
-          paddingBottom: 60,
-        }}
-      >
-        {/* Worker Info */}
-        <View sx={{
-          bg: '#F3F4F6',
-          borderRadius: 10,
-          borderWidth: 1,
-          borderColor: '#E5E7EB',
-          p: 16,
-          mb: 20,
-        }}>
+      <ScrollView sx={{ px: 20, pt: 50, pb: 10 }} contentContainerStyle={{ paddingBottom: 60 }}>
+        {/* ✅ Email Field */}
+        <View sx={{ bg: '#F3F4F6', borderRadius: 10, borderWidth: 1, borderColor: '#E5E7EB', p: 16, mb: 20 }}>
           <Text sx={{ fontSize: 16, fontWeight: '600', mb: 6, color: '#1F2937' }}>
-            👷 Name: <Text sx={{ fontWeight: 'bold' }}>Rajesh Yadav</Text>
+            📧 Email: <Text sx={{ fontWeight: 'bold' }}>{email}</Text>
           </Text>
           <Text sx={{ fontSize: 16, fontWeight: '600', mb: 6, color: '#1F2937' }}>
-            🆔 Worker ID: <Text sx={{ fontWeight: 'bold' }}>CW-1932</Text>
+            🆔 Worker ID: <Text sx={{ fontWeight: 'bold' }}>{worker.worker_id}</Text>
           </Text>
-          <Text sx={{ fontSize: 16,mb: 20, fontWeight: '600', color: '#1F2937' }}>
-            🏗️ Site: <Text sx={{ fontWeight: 'bold' }}>Tunnel Project A</Text>
+          <Text sx={{ fontSize: 16, mb: 20, fontWeight: '600', color: '#1F2937' }}>
+            🏗️ Site: <Text sx={{ fontWeight: 'bold' }}>{worker.site}</Text>
           </Text>
         </View>
 
@@ -91,12 +135,7 @@ export default function ApplyLeaveScreen() {
                 color={selectedType === item.label ? 'white' : '#2563EB'}
               />
               <Text
-                sx={{
-                  ml: 8,
-                  color: selectedType === item.label ? 'white' : '#2563EB',
-                  fontSize: 14,
-                  fontWeight: '500',
-                }}
+                sx={{ ml: 8, color: selectedType === item.label ? 'white' : '#2563EB', fontSize: 14, fontWeight: '500' }}
               >
                 {item.label}
               </Text>
@@ -106,7 +145,6 @@ export default function ApplyLeaveScreen() {
 
         {/* Dates */}
         <Text sx={{ fontSize: 16, fontWeight: 'bold', mb: 12, color: '#111827' }}>📅 Select Dates</Text>
-
         <Pressable onPress={() => setShowFromPicker(true)} sx={{ mb: 16 }}>
           <Text sx={{ fontSize: 15, color: '#374151' }}>
             📍 From: <Text sx={{ fontWeight: '500' }}>{fromDate.toDateString()}</Text>
@@ -146,7 +184,7 @@ export default function ApplyLeaveScreen() {
           />
         )}
 
-        {/* Reason */}
+        {/* Reason Input */}
         <Text sx={{ fontSize: 16, fontWeight: 'bold', mb: 10, color: '#111827' }}>🗣️ Reason (Optional)</Text>
         <TextInput
           placeholder="Example: Fever, family issue..."
@@ -166,19 +204,23 @@ export default function ApplyLeaveScreen() {
           }}
         />
 
-        {/* Submit Button */}
+        {/* Submit */}
         <Pressable
           onPress={handleSubmit}
+          disabled={loading}
           sx={{
             bg: '#2563EB',
             py: 14,
             borderRadius: 10,
             alignItems: 'center',
+            opacity: loading ? 0.6 : 1,
           }}
         >
-          <Text sx={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-            ✅ Submit Leave
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text sx={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>✅ Submit Leave</Text>
+          )}
         </Pressable>
       </ScrollView>
     </View>
