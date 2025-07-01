@@ -134,7 +134,7 @@ export default function AttendanceScreen() {
         } else {
           await sendLocationToBackend(coords, 'update');
         }
-      }, 60000); // every 60 sec
+      }, 900000); // every 15 min    //for 1min 60,000
     } else {
       Alert.alert('❌ Too Far', `You are ${Math.round(distance)}m away from the site.`);
     }

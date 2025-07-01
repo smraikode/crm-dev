@@ -3,12 +3,12 @@
 // const PROD_URL = "https://fastapi.selfsync.ai";
 
 
-const LOCAL_URL = "http://192.168.1.66:8000/api"; // 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
+// 🔁 Replace with actual LAN IP, e.g., http://192.168.1.5:8000/api
+const LOCAL_URL = "http://192.168.1.66:8000/api"; 
 
 
 const environments = {
   local: LOCAL_URL,
-  // staging: STAGING_URL,
   // production: PROD_URL,
 };
 
