@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -21,8 +21,24 @@ const LeadCreate = () => {
     type: "Buyer",
   });
 
+  const [propertyOptions, setPropertyOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const res = await axios.get(`${activeEnvironment}/properties`);
+        if (Array.isArray(res.data)) {
+          const names = res.data.map((p) => p.name).filter(Boolean);
+          setPropertyOptions(names);
+        }
+      } catch (err) {
+        toast.error("Failed to fetch property list.");
+      }
+    };
+    fetchProperties();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,6 +106,7 @@ const LeadCreate = () => {
     <div className="max-w-4xl mx-auto bg-white p-6 rounded-md shadow-md mt-6 overflow-y-auto max-h-[90vh]">
       <h2 className="text-xl font-bold mb-4">Add New Lead</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* First Name */}
         <div>
           <label className="block text-sm mb-1">First Name</label>
           <input
@@ -102,6 +119,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Last Name */}
         <div>
           <label className="block text-sm mb-1">Last Name</label>
           <input
@@ -114,6 +132,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Email */}
         <div>
           <label className="block text-sm mb-1">Email</label>
           <input
@@ -126,6 +145,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Phone */}
         <div>
           <label className="block text-sm mb-1">Phone</label>
           <input
@@ -141,6 +161,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Source */}
         <div>
           <label className="block text-sm mb-1">Source</label>
           <select
@@ -160,6 +181,7 @@ const LeadCreate = () => {
           </select>
         </div>
 
+        {/* Custom Source */}
         {lead.source === "Other" && (
           <div>
             <label className="block text-sm mb-1">Custom Source</label>
@@ -175,6 +197,7 @@ const LeadCreate = () => {
           </div>
         )}
 
+        {/* Project (Dynamic Dropdown) */}
         <div>
           <label className="block text-sm mb-1">Project</label>
           <select
@@ -184,14 +207,16 @@ const LeadCreate = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           >
             <option value="">Select Project</option>
-            <option value="Skyline Heights">Skyline Heights</option>
-            <option value="Palm Grove Residency">Palm Grove Residency</option>
-            <option value="Elite Enclave">Elite Enclave</option>
-            <option value="Sunrise Towers">Sunrise Towers</option>
+            {propertyOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
             <option value="Other">Other</option>
           </select>
         </div>
 
+        {/* Custom Project */}
         {lead.project === "Other" && (
           <div>
             <label className="block text-sm mb-1">Custom Project</label>
@@ -206,6 +231,7 @@ const LeadCreate = () => {
           </div>
         )}
 
+        {/* Property Interest */}
         <div>
           <label className="block text-sm mb-1">Property Interest</label>
           <select
@@ -222,6 +248,7 @@ const LeadCreate = () => {
           </select>
         </div>
 
+        {/* Budget Min */}
         <div>
           <label className="block text-sm mb-1">Min Budget</label>
           <input
@@ -234,6 +261,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Budget Max */}
         <div>
           <label className="block text-sm mb-1">Max Budget</label>
           <input
@@ -246,6 +274,7 @@ const LeadCreate = () => {
           />
         </div>
 
+        {/* Notes */}
         <div className="md:col-span-2">
           <label className="block text-sm mb-1">Notes</label>
           <textarea
@@ -258,6 +287,7 @@ const LeadCreate = () => {
           ></textarea>
         </div>
 
+        {/* Type */}
         <div className="md:col-span-2">
           <label className="block text-sm mb-1">Type</label>
           <select
@@ -272,6 +302,7 @@ const LeadCreate = () => {
           </select>
         </div>
 
+        {/* Buttons */}
         <div className="md:col-span-2 flex justify-between">
           <button
             type="button"
