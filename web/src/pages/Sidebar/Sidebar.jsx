@@ -7,8 +7,6 @@ import {
   FaHome,
   FaChartBar,
   FaTasks,
-  FaCog,
-  FaSignOutAlt,
   FaRegGem,
   FaChevronRight,
   FaChevronDown,
@@ -17,13 +15,12 @@ import {
   FaTimes,
   FaUserCircle,
 } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [openSubmenus, setOpenSubmenus] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const toggleSubmenu = (label) => {
     setOpenSubmenus((prev) => ({
@@ -35,6 +32,7 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname.startsWith(path);
   const decoded = getDecodedToken();
   const userRole = decoded?.role || "";
+  const isManagerOrAbove = ["manager", "lead", "admin"].includes(userRole);
 
   // Define menu items based on role
   const menuItems = [
@@ -43,75 +41,85 @@ const Sidebar = () => {
       icon: <FaTachometerAlt />,
       path: "/dashboard",
     },
+    {
+      label: "Leads",
+      icon: <FaUserFriends />,
+      path: "/leads",
+      submenu: [
+        { label: "All Leads", path: "/leads/all" },
+        { label: "New Lead", path: "/leads/new" },
+      ],
 
-    ...(userRole === "admin"
+    },
+    ...(isManagerOrAbove
       ? [
-          {
-            label: "Leads",
-            icon: <FaUserFriends />,
-            path: "/leads",
-            submenu: [
-              { label: "All Leads", path: "/leads/all" },
-              { label: "New Lead", path: "/leads/new" },
-            ],
-          },
-          {
-            label: "Projects",
-            icon: <FaProjectDiagram />,
-            path: "/projects",
-            submenu: [
-              { label: "All Projects", path: "/projects/all" },
-              { label: "Analytics", path: "/projects/analytics" },
-            ],
-          },
-          {
-            label: "Properties",
-            icon: <FaHome />,
-            path: "/properties",
-          },
-        ]
-      : []),
+        {
+          label: "Projects",
+          icon: <FaProjectDiagram />,
+          path: "/projects",
+          submenu: [
+            { label: "All Projects", path: "/projects/all" },
+            { label: "Analytics", path: "/projects/analytics" },
+          ],
+        },
+        // {
+        //   label: "Properties",
+        //   icon: <FaHome />,
+        //   path: "/properties",
+        // },
 
+
+
+
+      ]
+      : []),
+    {
+      label: "Properties",
+      icon: <FaHome />,
+      submenu: [
+        { label: "All Properties", path: "/properties/all" },
+        ...(userRole === "admin"
+          ? [{ label: "Manage Properties", path: "/properties/manage" }]
+          : []),
+      ],
+    },
     {
       label: "Reports",
       icon: <FaChartBar />,
       path: "/reports",
       submenu: [
         { label: "My Reports", path: "/reports/my" },
-        ...(userRole === "admin"
+        ...(isManagerOrAbove
           ? [
-              { label: "Team Reports", path: "/reports/team" },
-              { label: "Company Reports", path: "/reports/company" },
-            ]
+            { label: "Team Reports", path: "/reports/team" },
+            { label: "Company Reports", path: "/reports/company" },
+          ]
           : []),
       ],
     },
-
     {
       label: "Tasks",
       icon: <FaTasks />,
       path: "/tasks",
       submenu: [
         { label: "My Tasks", path: "/tasks/my" },
-        ...(userRole === "admin"
-          ? [{ label: "Team Tasks", path: "/tasks/team" }]
-          : []),
+        ...(isManagerOrAbove ? [{ label: "Team Tasks", path: "/tasks/team" }] : []),
       ],
     },
-
     {
       label: "Attendance",
       icon: <FaUserCheck />,
       submenu: [
         { label: "My Attendance", path: "/attendance/my" },
-        { label: "My Timeline", path: "/attendance/mytimeline" },
-        ...(userRole === "admin"
-          ? [{ label: "Team Attendance", path: "/attendance/team" }]
+        ...(isManagerOrAbove
+          ? [
+            { label: "Team Attendance", path: "/attendance/team" },
+            { label: "My Timeline", path: "/attendance/mytimeline" },
+          ]
           : []),
       ],
     },
-
-    ...(userRole === "admin"
+    ...(isManagerOrAbove
       ? [
           {
             label: "Manage Roles",
@@ -120,9 +128,14 @@ const Sidebar = () => {
           },
         ]
       : []),
+    // {
+    //   label: "Org Tree",
+    //   icon: <FaUserFriends />,
+    //   path: "/org-tree",
+    // },
+
   ];
 
-  // Close sidebar on mobile after clicking a link
   const handleNav = () => setSidebarOpen(false);
 
   const sidebarContent = (
@@ -154,12 +167,8 @@ const Sidebar = () => {
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base sm:text-lg">
-                          {item.icon}
-                        </span>
-                        <span className="text-xs xs:text-sm sm:text-base">
-                          {item.label}
-                        </span>
+                        <span className="text-base sm:text-lg">{item.icon}</span>
+                        <span className="text-xs xs:text-sm sm:text-base">{item.label}</span>
                       </div>
                       {isSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
                     </div>
@@ -187,9 +196,7 @@ const Sidebar = () => {
                       }`}
                     >
                       <span className="text-base sm:text-lg">{item.icon}</span>
-                      <span className="text-xs xs:text-sm sm:text-base">
-                        {item.label}
-                      </span>
+                      <span className="text-xs xs:text-sm sm:text-base">{item.label}</span>
                     </div>
                   </Link>
                 )}
@@ -203,7 +210,6 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Hamburger Button (Mobile/Tablet) */}
       <button
         className="fixed top-3 left-3 z-50 md:hidden bg-[#0e1e49] text-white p-2 rounded shadow-lg focus:outline-none"
         onClick={() => setSidebarOpen(true)}
@@ -212,7 +218,6 @@ const Sidebar = () => {
         <FaBars size={20} />
       </button>
 
-      {/* Sidebar Overlay (Mobile) */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden transition-all duration-300"
@@ -235,7 +240,6 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* Sidebar (Desktop/Tablet) */}
       <div className="hidden md:flex flex-col w-44 lg:w-56 xl:w-64 max-w-xs h-screen bg-[#0e1e49] text-white fixed top-0 left-0 z-30 p-3 transition-all duration-300">
         {sidebarContent}
       </div>
