@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import BaseModel, EmailStr
+
 
 class Task(BaseModel):
     title: str

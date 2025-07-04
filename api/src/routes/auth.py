@@ -1,61 +1,54 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
-from typing import Optional
-from pydantic import BaseModel, EmailStr
-from models.user import User
-from services.firestore_service import create_user, get_user_by_email, verify_user
+import logging
 from datetime import datetime, timedelta, timezone
-import jwt
-from env import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
+from typing import Optional
 
-from firebase_admin import firestore
-db = firestore.client()
+import jwt
+from fastapi import APIRouter, HTTPException, Header
+
+from db_client import get_db
+from env import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
+from models.user import User
+from models.user import UserSignup, UserLogin
+from services.user_service import create_user, get_user_by_email, verify_user
+from utils.auth import decode_token
+
+# Set up logger
+logger = logging.getLogger(__name__)
+
+db = get_db()
 
 router = APIRouter()
 
 
-class UserSignup(BaseModel):
-    name: str
-    lastName: str
-    email: EmailStr
-    phone: str
-    password: str
-    role: Optional[str] = "employee"  # ✅ Default value
-
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-
 @router.post("/signup")
 async def signup(user: UserSignup):
-    print("🚀 /signup endpoint hit")
+    logger.info("🚀 /signup endpoint hit")
     try:
         # Check if user already exists by email only
-        if get_user_by_email(user.email):
+        if get_user_by_email(str(user.email)):
             raise HTTPException(status_code=400, detail="Email already exists")
-        user_obj = User(**user.dict())
+        user_obj = User(**user.model_dump())
         create_user(user_obj)
         return {"message": "User registered successfully."}
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Signup error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/login")
 async def login(user: UserLogin):
-    print("🚀 /login endpoint hit")
+    logger.info("🚀 /login endpoint hit")
     try:
-        user_exists = verify_user(user.email, user.password)
+        user_exists = verify_user(str(user.email), user.password)
         if not user_exists:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         payload = {
             "sub": user.email,
             "role": user_exists["role"],
-            "exp": datetime.now(timezone.utc)
-            + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
+            "exp": datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -63,25 +56,13 @@ async def login(user: UserLogin):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Login error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/logout")
 async def logout():
-  
     return {"message": "Successfully logged out"}
-
-
-
-
-def decode_jwt_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 @router.get("/me")
@@ -90,6 +71,5 @@ async def get_authenticated_user(authorization: Optional[str] = Header(None)):
         raise HTTPException(
             status_code=401, detail="Authorization header missing or invalid"
         )
-    token = authorization.split(" ")[1]
-    payload = decode_jwt_token(token)
-    return {"email": payload.get("sub"), "role": payload.get("role")}
+    payload = decode_token(authorization)
+    return {"email": payload.get("email"), "role": payload.get("role")}

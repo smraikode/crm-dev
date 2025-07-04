@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class Property(BaseModel):
     name: str
     location: str

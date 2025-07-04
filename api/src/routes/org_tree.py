@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+import logging
 
-from services.firestore_service import build_org_tree, verify_jwt_token
+from fastapi import APIRouter, HTTPException, Request
 
+from services.user_service import build_org_tree
+from utils.auth import verify_jwt_token
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

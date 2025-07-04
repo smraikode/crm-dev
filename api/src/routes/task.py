@@ -1,8 +1,14 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
+
 from models.task import Task
-from services.firestore_service import create_task, get_tasks_by_email, get_tasks_of_subordinates, update_task_status 
+from services.task_service import create_task, get_tasks_by_email, get_tasks_of_subordinates, update_task_status
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
 
 @router.post("/createTask")
 async def create_task_route(task: Task):
@@ -12,6 +18,7 @@ async def create_task_route(task: Task):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/my")
 async def get_my_tasks(email: str = Query(...)):
     try:
@@ -19,7 +26,8 @@ async def get_my_tasks(email: str = Query(...)):
         return tasks
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @router.put("/updateStatus")
 async def update_task_status_route(task_id: str = Query(...), new_status: str = Query(...)):
     try:
@@ -29,7 +37,8 @@ async def update_task_status_route(task_id: str = Query(...), new_status: str = 
         return {"message": "Status updated"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @router.get("/team")
 async def get_team_tasks(user_email: str = Query(...)):
     try:
