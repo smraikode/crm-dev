@@ -111,22 +111,23 @@ const Sidebar = () => {
       icon: <FaUserCheck />,
       submenu: [
         { label: "My Attendance", path: "/attendance/my" },
+        { label: "My Timeline", path: "/attendance/mytimeline" },
+
         ...(isManagerOrAbove
           ? [
-            { label: "Team Attendance", path: "/attendance/team" },
-            { label: "My Timeline", path: "/attendance/mytimeline" },
+            { label: "Team Attendance", path: "/attendance/team" }
           ]
           : []),
       ],
     },
     ...(isManagerOrAbove
       ? [
-          {
-            label: "Manage Roles",
-            icon: <FaUserCircle />,
-            path: "/assign-role",
-          },
-        ]
+        {
+          label: "Manage Roles",
+          icon: <FaUserCircle />,
+          path: "/assign-role",
+        },
+      ]
       : []),
     // {
     //   label: "Org Tree",
@@ -162,9 +163,8 @@ const Sidebar = () => {
                   <>
                     <div
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${
-                        active ? "bg-gray-700" : ""
-                      }`}
+                      className={`flex items-center justify-between px-2 py-2 rounded cursor-pointer hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-base sm:text-lg">{item.icon}</span>
@@ -177,9 +177,8 @@ const Sidebar = () => {
                         {item.submenu.map((sub) => (
                           <Link key={sub.path} to={sub.path} onClick={handleNav}>
                             <li
-                              className={`px-2 py-1 rounded hover:bg-gray-500 ${
-                                isActive(sub.path) ? "bg-gray-700" : ""
-                              } text-xs sm:text-sm`}
+                              className={`px-2 py-1 rounded hover:bg-gray-500 ${isActive(sub.path) ? "bg-gray-700" : ""
+                                } text-xs sm:text-sm`}
                             >
                               {sub.label}
                             </li>
@@ -191,9 +190,8 @@ const Sidebar = () => {
                 ) : (
                   <Link to={item.path} onClick={handleNav}>
                     <div
-                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${
-                        active ? "bg-gray-700" : ""
-                      }`}
+                      className={`flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-500 ${active ? "bg-gray-700" : ""
+                        }`}
                     >
                       <span className="text-base sm:text-lg">{item.icon}</span>
                       <span className="text-xs xs:text-sm sm:text-base">{item.label}</span>
