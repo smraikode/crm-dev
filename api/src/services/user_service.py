@@ -1,6 +1,8 @@
 import logging
 from typing import List, Optional
 
+from fastapi import HTTPException
+
 from db_client import get_db
 from models.user import User
 from utils.security import hash_password, verify_password
@@ -97,3 +99,46 @@ def build_org_tree(email: str) -> dict:
         "email": email,
         "children": [build_org_tree(sub_email) for sub_email in subordinate_emails]
     }
+
+
+def search_users_service(query: str):
+    try:
+        users_ref = db.collection("users")
+        users = users_ref.stream()
+
+        result = []
+        for user in users:
+            data = user.to_dict()
+            if not data:
+                continue
+
+            email = data.get("email", "")
+            name = data.get("name", "Unknown")
+            role = data.get("role", "Not Assigned")
+
+            if isinstance(email, str) and query.lower() in email.lower():
+                result.append(
+                    {"id": user.id, "email": email, "name": name, "role": role}
+                )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error in search_users_service: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+def get_subordinates_service(email: str):
+    try:
+        user_ref = db.collection("users").document(email)
+        user_doc = user_ref.get()
+
+        if not user_doc.exists:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_data = user_doc.to_dict()
+        return user_data.get("subordinates", [])
+
+    except Exception as e:
+        logger.error(f"Error in get_subordinates_service: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
