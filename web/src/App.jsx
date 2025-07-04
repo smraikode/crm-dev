@@ -18,7 +18,6 @@ import PublicLeadForm from "./pages/Leads/publicLeadForm";
 // import OrgTree from "./pages/DashBoard/orgChartTree";
 import PropertiesPage from "./pages/properties/PropertiesPage";
 import ManageProperties from "./pages/properties/manageProperties";
-import getDecodedToken from "./utils/decodeToken";
 import MyTeamAttendance from "./pages/Attendance/MyTeamAttendance";
 
 function App() {
@@ -75,7 +74,7 @@ function App() {
           <Route
             path="attendance/mytimeline"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager", "lead"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "lead","employee"]}>
                 <MyTimeline />
               </ProtectedRoute>
             }
