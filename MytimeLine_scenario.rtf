@@ -1,0 +1,246 @@
+{\rtf1\fbidis\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset1 Segoe UI Symbol;}{\f2\fnil Calibri;}{\f3\fnil\fcharset1 Segoe UI Symbol;}{\f4\fnil\fcharset1 Segoe UI Emoji;}{\f5\fnil\fcharset1 Cambria Math;}}
+{\*\generator Riched20 10.0.17134}{\*\mmathPr\mmathFont5\mwrapIndent1440 }\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs18\lang9 To make your site location dynamic, where each construction site has its own latitude/longitude and employees should only be allowed to clock in/out based on proximity to their assigned site, follow these key steps:\par
+\par
+\f1\u9989?\f2  \f0 Updated Architecture (High-Level)\par
+Backend (FastAPI):\par
+Store construction site locations in DB (e.g., Firestore or SQL).\par
+Allow assigning a user/employee to a site.\par
+On each location request:\par
+Fetch site coordinates for the user.\par
+Check if user is within 100m.\par
+Frontend (React Web/Mobile):\par
+Instead of static coordinates, fetch the assigned site from the backend after login.\par
+Use those coordinates in Haversine distance check.\par
+Auto-clockout if user walks >100m away.\par
+\par
+\f3\u-10178?\u-8736?\f2  \f0 Thinking Dynamically\par
+\f3\u-10179?\u-8956?\f2  \f0 Dynamic Site Management:\par
+Owner can create/update multiple sites with name, lat, lon.\par
+Each user is assigned a site_id.\par
+\par
+\f3\u-10179?\u-9011?\f2  \f0 Flow:\par
+User logs in\par
+App fetches the user's assigned site (lat/lon).\par
+App uses that for proximity check and attendance submission.\par
+\par
+\f1\u9989?\f2  \f0 Backend (FastAPI): Updated Code\par
+1. Define a site model and user-site mapping\par
+class ConstructionSite(BaseModel):\par
+    id: str\par
+    name: str\par
+    latitude: float\par
+    longitude: float\par
+\par
+class UserSiteMapping(BaseModel):\par
+    email: str\par
+    site_id: str\par
+\par
+2. Mock DB for demo (replace with Firestore/SQL later)\par
+SITES = \{\par
+    "site1": \{"latitude": 17.4221891, "longitude": 78.3819498\},\par
+    "site2": \{"latitude": 17.423, "longitude": 78.382\},\par
+\}\par
+USER_SITE_MAP = \{\par
+    "worker1@example.com": "site1",\par
+    "worker2@example.com": "site2",\par
+\}\par
+\par
+3. Get user site location during check-in\par
+@router.post("/mytimeline/current-location")\par
+async def current_location(payload: LocationPayload, authorization: Optional[str] = Header(None)):\par
+    if not authorization or not authorization.startswith("Bearer "):\par
+        raise HTTPException(status_code=401, detail="Invalid or missing token")\par
+\par
+    user = decode_token(authorization)\par
+    email = user["email"]\par
+\par
+    site_id = USER_SITE_MAP.get(email)\par
+    if not site_id or site_id not in SITES:\par
+        raise HTTPException(status_code=400, detail="Assigned site not found")\par
+\par
+    site_coords = SITES[site_id]\par
+    distance = calculate_distance(payload.latitude, payload.longitude, site_coords["latitude"], site_coords["longitude"])\par
+\par
+    # Add clock-in restrictions (optional here)\par
+    if payload.status == "clockin" and distance > 100:\par
+        raise HTTPException(status_code=403, detail=f"Too far from site to clock in. Distance: \{int(distance)\}m")\par
+\par
+    if not add_location(email, payload.longitude, payload.latitude, payload.status):\par
+        raise HTTPException(status_code=500, detail="Failed to save location")\par
+\par
+    return \{\par
+        "currenttime": datetime.now().isoformat(),\par
+        "site_latitude": site_coords["latitude"],\par
+        "site_longitude": site_coords["longitude"],\par
+        "user_latitude": payload.latitude,\par
+        "user_longitude": payload.longitude,\par
+        "status": payload.status,\par
+        "distance_from_site": round(distance),\par
+        "email": email,\par
+        "message": "Location Added successfully",\par
+    \}\par
+\par
+def calculate_distance(lat1, lon1, lat2, lon2):\par
+    from math import radians, sin, cos, sqrt, atan2\par
+    R = 6371000\par
+    dlat = radians(lat2 - lat1)\par
+    dlon = radians(lon2 - lon1)\par
+    a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)**2\par
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))\par
+    return R * c\par
+\par
+\par
+\f1\u9989?\f2  \f0 Frontend (React): Updated Code\par
+\par
+\f1\u10024?\f2  \f0 Key Change:\par
+\f3\u-10179?\u-9143?\f2  \f0 Fetch assigned site coordinates from backend instead of hardcoding.\par
+1. Update React component to fetch dynamic site\par
+\par
+const MyTimeline = () => \{\par
+  const [location, setLocation] = useState(\{ latitude: null, longitude: null \});\par
+  const [siteLocation, setSiteLocation] = useState(null); // \f3\u-10179?\u-8576?\f2  \f0 Dynamic site location\par
+  const [distance, setDistance] = useState(null);\par
+  const [isClockedIn, setIsClockedIn] = useState(false);\par
+  const [error, setError] = useState("");\par
+  const intervalRef = useRef(null);\par
+  const navigate = useNavigate();\par
+\par
+  // Fetch assigned site from backend\par
+  const fetchAssignedSite = async () => \{\par
+    const token = localStorage.getItem("token");\par
+    try \{\par
+      const response = await axios.get(apiEndpoints.getAssignedSite, \{\par
+        headers: \{\par
+          Authorization: `Bearer $\{token\}`,\par
+        \},\par
+      \});\par
+      setSiteLocation(response.data); // Should have lat & long\par
+    \} catch (err) \{\par
+      console.error("\f1\u10060?\f2  \f0 Failed to fetch site:", err);\par
+      setError("Unable to fetch assigned site.");\par
+    \}\par
+  \};\par
+\par
+  const fetchAndSetLocation = useCallback(\par
+    (status = null) => \{\par
+      navigator.geolocation.getCurrentPosition(\par
+        async (position) => \{\par
+          const coords = \{\par
+            latitude: position.coords.latitude,\par
+            longitude: position.coords.longitude,\par
+          \};\par
+          setLocation(coords);\par
+\par
+          if (siteLocation) \{\par
+            const dist = getDistanceFromLatLonInMeters(\par
+              coords.latitude,\par
+              coords.longitude,\par
+              siteLocation.latitude,\par
+              siteLocation.longitude\par
+            );\par
+            setDistance(Math.round(dist));\par
+\par
+            if (status) \{\par
+              await sendLocationToBackend(coords, status);\par
+            \}\par
+          \}\par
+        \},\par
+        (err) => \{\par
+          setError("Location access denied.");\par
+        \}\par
+      );\par
+    \},\par
+    [sendLocationToBackend, siteLocation]\par
+  );\par
+\par
+  useEffect(() => \{\par
+    const isValid = checkUserValid();\par
+    if (!isValid) \{\par
+      navigate("/login");\par
+      return;\par
+    \}\par
+\par
+    fetchAssignedSite(); // \f3\u-10180?\u-8432?\f2  \f0 Fetch site on load\par
+  \}, [navigate]);\par
+\par
+  useEffect(() => \{\par
+    if (siteLocation) \{\par
+      fetchAndSetLocation();\par
+    \}\par
+  \}, [siteLocation, fetchAndSetLocation]);\par
+\par
+  const handleClockIn = async () => \{\par
+    if (!siteLocation || distance === null) \{\par
+      alert("\f1\u9203?\f2  \f0 Loading location or site info...");\par
+      return;\par
+    \}\par
+\par
+    if (distance <= 100) \{\par
+      setIsClockedIn(true);\par
+      await sendLocationToBackend(location, "clockin");\par
+\par
+      intervalRef.current = setInterval(() => \{\par
+        fetchAndSetLocation("update");\par
+      \}, 900000);\par
+    \} else \{\par
+      alert(`\f1\u10060?\f2  \f0 You are $\{distance\} meters away from the site. Must be within 100m.`);\par
+    \}\par
+  \};\par
+\par
+  const handleClockOut = async () => \{\par
+    setIsClockedIn(false);\par
+    await sendLocationToBackend(location, "clockout");\par
+\par
+    if (intervalRef.current) clearInterval(intervalRef.current);\par
+  \};\par
+\par
+  return (\par
+    <div className="p-4">\par
+      <h1 className="text-xl font-bold">MyTimeline</h1>\par
+\par
+      \{error && <p className="text-red-600">\{error\}</p>\}\par
+\par
+      \{location.latitude && siteLocation && (\par
+        <>\par
+          <p>\f3\u-10179?\u-9011?\f2  \f0 You are \{distance\} meters from your assigned site</p>\par
+          <button onClick=\{handleClockIn\} disabled=\{isClockedIn\}>Clock In</button>\par
+          <button onClick=\{handleClockOut\} disabled=\{!isClockedIn\}>Clock Out</button>\par
+        </>\par
+      )\}\par
+    </div>\par
+  );\par
+\};\par
+\f4\u-10179?\u-8480?\u-497?\f2  \f0 Backend Endpoint: /get-assigned-site\par
+python\par
+Copy\par
+Edit\par
+@router.get("/assigned-site")\par
+async def get_assigned_site(authorization: Optional[str] = Header(None)):\par
+    if not authorization or not authorization.startswith("Bearer "):\par
+        raise HTTPException(status_code=401, detail="Invalid or missing token")\par
+\par
+    user = decode_token(authorization)\par
+    email = user["email"]\par
+\par
+    site_id = USER_SITE_MAP.get(email)\par
+    if not site_id or site_id not in SITES:\par
+        raise HTTPException(status_code=404, detail="Assigned site not found")\par
+\par
+    return \{\par
+        "site_id": site_id,\par
+        "latitude": SITES[site_id]["latitude"],\par
+        "longitude": SITES[site_id]["longitude"],\par
+    \}\par
+\par
+\par
+\f1\u9989?\f2  \f0 Summary\par
+Area\tab What to Do\par
+Frontend\tab Fetch dynamic site coordinates from backend\par
+Frontend\tab Use these coords to calculate distance\par
+Backend\tab Store user \f5\u8594?\f2  \f0 site_id mapping\par
+Backend\tab Lookup user site on each request\par
+Backend\tab Calculate distance and reject clock-in if > 100m\par
+\fs22\lang9\par
+}
+ 
