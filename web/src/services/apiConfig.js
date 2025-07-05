@@ -32,7 +32,8 @@ const apiEndpoints = {
     //orgTree: `${activeEnvironment}/org-tree`,
     getProperties: `${activeEnvironment}/properties`,
     MyTeamAttendance: `${activeEnvironment}/team/attendance`,
-    
+    sendSMS: `${activeEnvironment}/msg-service/send-sms`,
+  sendWhatsApp: `${activeEnvironment}/msg-service/send-whatsapp`,
 }
 
 export { activeEnvironment, apiEndpoints };
