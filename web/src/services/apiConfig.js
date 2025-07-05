@@ -16,24 +16,26 @@ const activeEnvironment = environments.local;
 
 const apiEndpoints = {
 
-    login:`${activeEnvironment}/auth/login`,
-    register:`${activeEnvironment}/auth/signup`,
-    mytimeline:`${activeEnvironment}/mytimeline/current-location`,
-    searchUsers: `${activeEnvironment}/search/search-users`,
-    assignRole: `${activeEnvironment}/permissions/assign-role`,
-    removeSubordinate: `${activeEnvironment}/permissions/remove-subordinate`,
-    createLead: `${activeEnvironment}/leads`, 
-    //assignLead: `${activeEnvironment}/leads/assign`,
-    createTask: `${activeEnvironment}/tasks/createTask`,
-    getMyTasks: `${activeEnvironment}/tasks/my`,
-    updateTaskStatus: `${activeEnvironment}/tasks/updateStatus`,
-    getTeamTasks: `${activeEnvironment}/tasks/team`,
-    publicLead: `${activeEnvironment}/public-leads`,
-    //orgTree: `${activeEnvironment}/org-tree`,
-    getProperties: `${activeEnvironment}/properties`,
-    MyTeamAttendance: `${activeEnvironment}/team/attendance`,
-    sendSMS: `${activeEnvironment}/msg-service/send-sms`,
+  login: `${activeEnvironment}/auth/login`,
+  register: `${activeEnvironment}/auth/signup`,
+  mytimeline: `${activeEnvironment}/attendance/mark`,
+  searchUsers: `${activeEnvironment}/search/search-users`,
+  assignRole: `${activeEnvironment}/permissions/assign-role`,
+  removeSubordinate: `${activeEnvironment}/permissions/remove-subordinate`,
+  createLead: `${activeEnvironment}/leads`,
+  //assignLead: `${activeEnvironment}/leads/assign `,
+  createTask: `${activeEnvironment}/tasks/createTask`,
+  getMyTasks: `${activeEnvironment}/tasks/my`,
+  updateTaskStatus: `${activeEnvironment}/tasks/updateStatus`,
+  getTeamTasks: `${activeEnvironment}/tasks/team`,
+  publicLead: `${activeEnvironment}/public-leads`,
+  //orgTree: `${activeEnvironment}/org-tree`,
+  getProperties: `${activeEnvironment}/properties`,
+  sendSMS: `${activeEnvironment}/msg-service/send-sms`,
   sendWhatsApp: `${activeEnvironment}/msg-service/send-whatsapp`,
+  MyTeamAttendance: `${activeEnvironment}/attendance/team`,
+  getOfficeLocations: `${activeEnvironment}/user/get-office`,
+
 }
 
 export { activeEnvironment, apiEndpoints };
