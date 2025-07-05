@@ -1,14 +1,14 @@
 import logging
 
 from fastapi import HTTPException, APIRouter
-from firebase_admin import firestore
 from pydantic import BaseModel
 
 from services.auth_service import assign_role_to_user, get_user_subordinates, remove_user_subordinate
+from utils.db_client import get_db
 
 logger = logging.getLogger(__name__)
 
-db = firestore.client()
+db = get_db()
 router = APIRouter(prefix="/roles", tags=["roles"])
 
 
