@@ -26,10 +26,12 @@ const ManageProperties = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const token = localStorage.getItem("token");
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`${activeEnvironment}/properties`);
+      const res = await axios.get(`${activeEnvironment}/properties`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProperties(Array.isArray(res.data) ? res.data : []);
     } catch {
       toast.error("Failed to load properties");
@@ -68,10 +70,18 @@ const ManageProperties = () => {
     setIsSubmitting(true);
     try {
       if (isEditingId) {
-        await axios.put(`${activeEnvironment}/properties/${formData.id}`, formData);
+        await axios.put(
+          `${activeEnvironment}/properties/${formData.id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         toast.success("Property updated");
       } else {
-        await axios.post(`${activeEnvironment}/properties`, formData);
+        await axios.post(
+          `${activeEnvironment}/properties`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         toast.success("Property added");
       }
       resetForm();
@@ -90,7 +100,9 @@ const ManageProperties = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`${activeEnvironment}/properties/${id}`);
+      await axios.delete(`${activeEnvironment}/properties/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       toast.success("Property removed");
       fetchProperties();
     } catch {

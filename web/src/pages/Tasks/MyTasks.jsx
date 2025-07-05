@@ -40,12 +40,22 @@ const MyTasks = () => {
   const [sort, setSort] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const userEmail = getDecodedToken()?.sub;
-
+  const userEmail = getDecodedToken()?.email;
+  const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await axios.get(`${apiEndpoints.getMyTasks}?email=${userEmail}`);
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          `${apiEndpoints.getMyTasks}?email=${userEmail}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         setTasks(res.data || []);
         setFilteredTasks(res.data || []);
       } catch {
@@ -85,12 +95,19 @@ const MyTasks = () => {
 
   const handleStatusUpdate = async () => {
     try {
-      await axios.put(apiEndpoints.updateTaskStatus, null, {
-        params: {
-          task_id: selectedTask.id,
-          new_status: selectedTask.status,
-        },
-      });
+      await axios.put(
+        apiEndpoints.updateTaskStatus,
+        null,
+        {
+          params: {
+            task_id: selectedTask.id,
+            new_status: selectedTask.status,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       toast.success("Task status updated");
       setTasks((prev) =>

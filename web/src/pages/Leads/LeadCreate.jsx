@@ -24,11 +24,16 @@ const LeadCreate = () => {
   const [propertyOptions, setPropertyOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await axios.get(`${activeEnvironment}/properties`);
+        const res = await axios.get(`${activeEnvironment}/properties`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (Array.isArray(res.data)) {
           const names = res.data.map((p) => p.name).filter(Boolean);
           setPropertyOptions(names);
@@ -74,7 +79,12 @@ const LeadCreate = () => {
 
     try {
       setLoading(true);
-      await axios.post(`${activeEnvironment}/leads`, finalPayload);
+      await axios.post(`${activeEnvironment}/leads`, finalPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       toast.success("Lead created successfully!");
       setLead({
         firstName: "",
@@ -314,9 +324,8 @@ const LeadCreate = () => {
           <button
             type="submit"
             disabled={loading || !isFormValid}
-            className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ${
-              loading || !isFormValid ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 ${loading || !isFormValid ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {loading ? "Creating..." : "Add Lead"}
           </button>

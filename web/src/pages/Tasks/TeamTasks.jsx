@@ -44,9 +44,8 @@ const TaskCard = ({ task, onClick }) => {
   return (
     <div
       onClick={() => onClick(task)}
-      className={`bg-white transition-shadow border rounded-xl p-5 shadow-sm cursor-pointer hover:-translate-y-1 duration-200 ${
-        isOverdue ? "border-red-400 ring-1 ring-red-300" : "hover:shadow-lg"
-      }`}
+      className={`bg-white transition-shadow border rounded-xl p-5 shadow-sm cursor-pointer hover:-translate-y-1 duration-200 ${isOverdue ? "border-red-400 ring-1 ring-red-300" : "hover:shadow-lg"
+        }`}
     >
       <div className="flex justify-between items-center mb-2">
         <h4 className="text-lg font-semibold text-gray-800 truncate">
@@ -81,13 +80,17 @@ const TeamTasks = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [page, setPage] = useState(1);
   const tasksPerPage = 6;
-  const userEmail = getDecodedToken()?.sub;
+  const userEmail = getDecodedToken()?.email;
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const res = await axios.get(apiEndpoints.getTeamTasks, {
           params: { user_email: userEmail },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setTasks(res.data || []);
         setFilteredTasks(res.data || []);
