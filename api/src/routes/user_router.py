@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from services.user_service import update_user_office, get_user_office
+from services.user_service import update_user_office,get_user_office
 from utils.auth_utils import decode_token
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -35,3 +35,6 @@ def get_office_details(request: Request):
     if not office_id:
         raise HTTPException(status_code=404, detail="No office assigned to user")
     return {"office_details": office_id}
+
+
+

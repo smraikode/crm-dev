@@ -18,7 +18,7 @@ const apiEndpoints = {
 
     login:`${activeEnvironment}/auth/login`,
     register:`${activeEnvironment}/auth/signup`,
-    mytimeline:`${activeEnvironment}/mytimeline/current-location`,
+    mytimeline:`${activeEnvironment}/attendance/mark`,
     searchUsers: `${activeEnvironment}/search/search-users`,
     assignRole: `${activeEnvironment}/permissions/assign-role`,
     removeSubordinate: `${activeEnvironment}/permissions/remove-subordinate`,
@@ -31,7 +31,8 @@ const apiEndpoints = {
     publicLead: `${activeEnvironment}/public-leads`,
     //orgTree: `${activeEnvironment}/org-tree`,
     getProperties: `${activeEnvironment}/properties`,
-    MyTeamAttendance: `${activeEnvironment}/team/attendance`,
+    MyTeamAttendance: `${activeEnvironment}/attendance/team`,
+    getOfficeLocations: `${activeEnvironment}/user/get-office`,
     
 }
 

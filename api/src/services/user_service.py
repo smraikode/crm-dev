@@ -30,3 +30,8 @@ def get_user_office(user_email: str) -> dict:
         return {}
 
     return office_service.get_by_id(office_id)
+
+
+
+
+       

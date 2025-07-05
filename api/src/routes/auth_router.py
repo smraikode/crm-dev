@@ -67,3 +67,8 @@ async def get_current_user_profile(authorization: Optional[str] = Header(None)):
     payload = decode_token(authorization)
     email = payload.get("email")
     return get_user_by_email(email)
+
+@router.post("/logout")
+async def logout():
+
+    return {"message": "Successfully logged out"}
