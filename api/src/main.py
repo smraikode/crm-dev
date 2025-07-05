@@ -11,6 +11,7 @@ from routes.property_router import router as properties_router
 from routes.role_router import router as role_router
 from routes.search_router import router as search_router
 from routes.task_router import router as task_router
+from routes.user_router import router as user_router
 from utils.auth_utils import require_roles
 
 app = FastAPI(title="CRM DEV API", version="1.0")
@@ -33,7 +34,10 @@ app.include_router(properties_router, prefix="/api",
 app.include_router(leave_router, prefix="/api",
                    dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
 app.include_router(office_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager"))])
-app.include_router(search_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(search_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(user_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
 
 
 @app.get("/")
