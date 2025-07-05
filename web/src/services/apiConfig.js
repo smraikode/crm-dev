@@ -15,7 +15,6 @@ const environments = {
 const activeEnvironment = environments.local;
 
 const apiEndpoints = {
-
   login: `${activeEnvironment}/auth/login`,
   register: `${activeEnvironment}/auth/signup`,
   mytimeline: `${activeEnvironment}/attendance/mark`,
@@ -35,7 +34,6 @@ const apiEndpoints = {
   sendWhatsApp: `${activeEnvironment}/msg-service/send-whatsapp`,
   MyTeamAttendance: `${activeEnvironment}/attendance/team`,
   getOfficeLocations: `${activeEnvironment}/user/get-office`,
-
-}
+};
 
 export { activeEnvironment, apiEndpoints };
