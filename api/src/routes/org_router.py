@@ -20,7 +20,7 @@ def get_organization_tree(request: Request):
     if not decoded:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    user_email = decoded.get("sub")
+    user_email = decoded.get("email")
     if not user_email:
         raise HTTPException(status_code=400, detail="Email not found in token")
 

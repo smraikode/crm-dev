@@ -44,7 +44,7 @@ async def authenticate_user(user: UserLogin):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         payload = {
-            "sub": user.email,
+            "email": user.email,
             "role": user_exists["role"],
             "exp": datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
         }
@@ -65,5 +65,5 @@ async def get_current_user_profile(authorization: Optional[str] = Header(None)):
             status_code=401, detail="Authorization header missing or invalid"
         )
     payload = decode_token(authorization)
-    email = payload.get("email") if payload.get("email") is not None else payload.get("sub")
+    email = payload.get("email")
     return get_user_by_email(email)

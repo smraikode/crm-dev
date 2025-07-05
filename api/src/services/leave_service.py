@@ -24,7 +24,7 @@ def parse_dates(from_date_str: str, to_date_str: str):
 def extract_email_from_token(token: str) -> str:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
+        email = payload.get("email")
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token payload")
         return email
