@@ -23,9 +23,9 @@ def create_lead(lead: Union[Lead, dict]) -> None:
 def check_duplicate_lead(email: EmailStr, phone: str) -> bool:
     query = db.collection("leads")
     if email:
-        query = query.where(filter=("email", "==", email))
+        query = query.where("email", "==", email)
     if phone:
-        query = query.where(filter=("phone", "==", phone))
+        query = query.where("phone", "==", phone)
     return any(query.stream())
 
 

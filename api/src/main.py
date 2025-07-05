@@ -9,18 +9,14 @@ from routes.office_router import router as office_router
 from routes.org_router import router as org_router
 from routes.property_router import router as properties_router
 from routes.role_router import router as role_router
+from routes.search_router import router as search_router
 from routes.task_router import router as task_router
 from utils.auth_utils import require_roles
 
 app = FastAPI(title="CRM DEV API", version="1.0")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"],
+                   allow_headers=["*"], )
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(attendance_router, prefix="/api",
@@ -37,6 +33,7 @@ app.include_router(properties_router, prefix="/api",
 app.include_router(leave_router, prefix="/api",
                    dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
 app.include_router(office_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager"))])
+app.include_router(search_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
 
 
 @app.get("/")
