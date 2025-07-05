@@ -4,10 +4,11 @@ from fastapi import APIRouter, Query
 from firebase_admin import firestore
 
 from services.auth_service import search_users
+from utils.db_client import get_db
 
 logger = logging.getLogger(__name__)
 
-db = firestore.client()
+db = get_db()
 router = APIRouter(prefix="/search", tags=["search"])
 
 
