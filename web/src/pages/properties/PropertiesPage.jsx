@@ -26,10 +26,12 @@ const PropertiesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [sortOrder, setSortOrder] = useState("");
-
+  const token = localStorage.getItem("token");
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`${activeEnvironment}/properties`);
+      const res = await axios.get(`${activeEnvironment}/properties`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (Array.isArray(res.data)) {
         setProperties(res.data);
         setFiltered(res.data);

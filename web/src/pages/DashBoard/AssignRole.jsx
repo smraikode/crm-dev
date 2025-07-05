@@ -36,7 +36,7 @@ export default function AssignRolePage() {
   const [subordinateUsers, setSubordinateUsers] = useState([]);
   const [assignedSubordinates, setAssignedSubordinates] = useState([]);
   const lastNoUserToastQuery = useRef("");
-
+  const token = localStorage.getItem("token");
   useEffect(() => {
     setAssignedSubordinates([]);
     setSubordinateQuery("");
@@ -46,7 +46,12 @@ export default function AssignRolePage() {
   const fetchUsers = async (query, rolesFilter = []) => {
     try {
       const res = await axios.get(
-        `${activeEnvironment}/search/search-users?query=${encodeURIComponent(query)}`
+        `${activeEnvironment}/search/search-users?query=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (Array.isArray(res.data)) {
         const filtered = rolesFilter.length > 0
@@ -67,7 +72,7 @@ export default function AssignRolePage() {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get(
-        `${activeEnvironment}/permissions/get-subordinates/${email}`,
+        `${activeEnvironment}/roles/get-subordinates/${email}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -116,7 +121,7 @@ export default function AssignRolePage() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `${activeEnvironment}/permissions/assign-role`,
+        `${activeEnvironment}/roles/assign-role`,
         {
           email: selectedUser.email,
           role: selectedRole.value,
@@ -139,7 +144,12 @@ export default function AssignRolePage() {
       const lowerRoles = roleHierarchy[selectedRole.value] || [];
       try {
         const res = await axios.get(
-          `${activeEnvironment}/search/search-users?query=${encodeURIComponent(value)}`
+          `${activeEnvironment}/search/search-users?query=${encodeURIComponent(value)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         if (Array.isArray(res.data)) {
           const filtered = res.data.filter((u) => lowerRoles.includes(u.role));
@@ -340,7 +350,7 @@ export default function AssignRolePage() {
                                   const token = localStorage.getItem("token");
                                   try {
                                     await axios.post(
-                                      `${activeEnvironment}/permissions/remove-subordinate`,
+                                      `${activeEnvironment}/roles/remove-subordinate`,
                                       {
                                         userEmail: selectedUser.email,
                                         subordinateEmail: user.email,
