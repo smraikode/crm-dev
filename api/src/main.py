@@ -1,14 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes.auth import router as auth_router
-from routes.leads import router as leads_router
-from routes.leave_management import router as leave_router
-from routes.location_router import router as location_router
-from routes.org_tree import router as org_router
-from routes.properties import router as properties_router
-from routes.role_management import router as role_router
-from routes.task import router as task_router
+from routes.attendance_router import router as attendance_router
+from routes.auth_router import router as auth_router
+from routes.lead_router import router as leads_router
+from routes.leave_router import router as leave_router
+from routes.office_router import router as office_router
+from routes.org_router import router as org_router
+from routes.property_router import router as properties_router
+from routes.role_router import router as role_router
+from routes.task_router import router as task_router
+from utils.auth_utils import require_roles
 
 app = FastAPI(title="CRM DEV API", version="1.0")
 
@@ -20,14 +22,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router, prefix="/api/auth")
-app.include_router(location_router, prefix="/api")
-app.include_router(role_router, prefix="/api")
-app.include_router(leads_router, prefix="/api")
-app.include_router(task_router, prefix="/api/tasks")
-app.include_router(org_router, prefix="/api")
-app.include_router(properties_router, prefix="/api")
-app.include_router(leave_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(attendance_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(role_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager", "lead"))])
+app.include_router(leads_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(task_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(org_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(properties_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(leave_router, prefix="/api",
+                   dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))])
+app.include_router(office_router, prefix="/api", dependencies=[Depends(require_roles("admin", "manager"))])
 
 
 @app.get("/")

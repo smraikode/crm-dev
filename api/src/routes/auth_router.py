@@ -3,28 +3,26 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import HTTPException, Header, APIRouter
 
-from db_client import get_db
 from env import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
 from models.user import User
 from models.user import UserSignup, UserLogin
-from services.user_service import create_user, get_user_by_email, verify_user
-from utils.auth import decode_token
+from services.auth_service import create_user, get_user_by_email, verify_user
+from utils.auth_utils import decode_token
+from utils.db_client import get_db
 
-# Set up logger
 logger = logging.getLogger(__name__)
 
 db = get_db()
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/signup")
-async def signup(user: UserSignup):
+async def register_user(user: UserSignup):
     logger.info("🚀 /signup endpoint hit")
     try:
-        # Check if user already exists by email only
         if get_user_by_email(str(user.email)):
             raise HTTPException(status_code=400, detail="Email already exists")
         user_obj = User(**user.model_dump())
@@ -38,7 +36,7 @@ async def signup(user: UserSignup):
 
 
 @router.post("/login")
-async def login(user: UserLogin):
+async def authenticate_user(user: UserLogin):
     logger.info("🚀 /login endpoint hit")
     try:
         user_exists = verify_user(str(user.email), user.password)
@@ -60,16 +58,12 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.post("/logout")
-async def logout():
-    return {"message": "Successfully logged out"}
-
-
-@router.get("/me")
-async def get_authenticated_user(authorization: Optional[str] = Header(None)):
+@router.get("/profile")
+async def get_current_user_profile(authorization: Optional[str] = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=401, detail="Authorization header missing or invalid"
         )
     payload = decode_token(authorization)
-    return {"email": payload.get("email"), "role": payload.get("role")}
+    email = payload.get("email") if payload.get("email") is not None else payload.get("sub")
+    return get_user_by_email(email)

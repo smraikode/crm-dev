@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from fastapi import HTTPException
 
-from db_client import get_db
 from models.user import User
+from utils.db_client import get_db
 from utils.security import hash_password, verify_password
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ def assign_role_to_user(email: str, role: str, subordinates: Optional[List[str]]
     return True
 
 
-def remove_subordinate_from_user(user_email: str, subordinate_email: str) -> bool:
+def remove_user_subordinate(user_email: str, subordinate_email: str) -> bool:
     user_ref = db.collection("users").document(user_email)
     user_doc = user_ref.get()
     if not user_doc.exists:
@@ -83,7 +83,7 @@ def remove_subordinate_from_user(user_email: str, subordinate_email: str) -> boo
     return True
 
 
-def build_org_tree(email: str) -> dict:
+def build_organization_tree(email: str) -> dict:
     user_ref = db.collection("users").document(email)
     user_doc = user_ref.get()
     if not user_doc.exists:
@@ -97,11 +97,11 @@ def build_org_tree(email: str) -> dict:
         "name": user_data.get("name"),
         "role": user_data.get("role"),
         "email": email,
-        "children": [build_org_tree(sub_email) for sub_email in subordinate_emails]
+        "children": [build_organization_tree(sub_email) for sub_email in subordinate_emails]
     }
 
 
-def search_users_service(query: str):
+def search_users(query: str):
     try:
         users_ref = db.collection("users")
         users = users_ref.stream()
@@ -124,11 +124,11 @@ def search_users_service(query: str):
         return result
 
     except Exception as e:
-        logger.error(f"Error in search_users_service: {e}")
+        logger.error(f"Error in search_users: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-def get_subordinates_service(email: str):
+def get_user_subordinates(email: str):
     try:
         user_ref = db.collection("users").document(email)
         user_doc = user_ref.get()
@@ -140,5 +140,5 @@ def get_subordinates_service(email: str):
         return user_data.get("subordinates", [])
 
     except Exception as e:
-        logger.error(f"Error in get_subordinates_service: {e}")
+        logger.error(f"Error in get_user_subordinates: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

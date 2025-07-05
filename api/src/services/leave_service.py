@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 import jwt
 from fastapi import HTTPException
 
-from db_client import get_db
 from env import SECRET_KEY, ALGORITHM
+from utils.db_client import get_db
 
 logger = logging.getLogger(__name__)
 

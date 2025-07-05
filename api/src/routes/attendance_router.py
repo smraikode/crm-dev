@@ -5,17 +5,17 @@ from typing import Optional
 from fastapi import APIRouter, Header, HTTPException, Query
 from pydantic import BaseModel
 
-from services.location_service import (
-    add_location,
-    get_all_user_locations_details,
-    get_user_timeline,
+from services.attendance_service import (
+    add_attendance_location,
+    get_all_attendance_details,
+    get_attendance_timeline,
     get_attendance_history,
 )
-from utils.auth import decode_token
+from utils.auth_utils import decode_token
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/attendance", tags=["attendance"])
 
 
 class LocationPayload(BaseModel):
@@ -24,15 +24,15 @@ class LocationPayload(BaseModel):
     status: str
 
 
-@router.post("/mytimeline/current-location")
-async def current_location(payload: LocationPayload, authorization: Optional[str] = Header(None)):
+@router.post("/mark")
+async def mark_attendance(payload: LocationPayload, authorization: Optional[str] = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid or missing token")
 
     user = decode_token(authorization)
 
-    if not add_location(user["email"], payload.longitude, payload.latitude, payload.status):
-        raise HTTPException(status_code=500, detail="Failed to save location")
+    if not add_attendance_location(user["email"], payload.longitude, payload.latitude, payload.status):
+        raise HTTPException(status_code=500, detail="Failed to save address")
 
     return {
         "currenttime": datetime.now().isoformat(),
@@ -45,17 +45,17 @@ async def current_location(payload: LocationPayload, authorization: Optional[str
     }
 
 
-@router.get("/team/attendance")
-async def get_team_attendance(authorization: Optional[str] = Header(None)):
+@router.get("/team")
+async def team_attendance(authorization: Optional[str] = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid token format")
 
     decode_token(authorization)
-    return {"data": get_all_user_locations_details()}
+    return {"data": get_all_attendance_details()}
 
 
-@router.get("/mytimeline/user")
-async def user_timeline(
+@router.get("/location-check")
+async def attendance_location_check(
         authorization: Optional[str] = Header(None),
         date: Optional[str] = Query(None)
 ):
@@ -72,11 +72,11 @@ async def user_timeline(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format")
 
-    timeline = get_user_timeline(user["email"], target_date)
+    timeline = get_attendance_timeline(user["email"], target_date)
     return {"email": user["email"], "timeline": timeline}
 
 
-@router.get("/attendance/history")
+@router.get("/history")
 async def attendance_history(
         date: Optional[str] = Query(None),
         authorization: Optional[str] = Header(None),

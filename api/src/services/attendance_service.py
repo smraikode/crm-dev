@@ -3,12 +3,14 @@ from datetime import datetime, timezone, timedelta
 
 from firebase_admin import firestore
 
+from utils.db_client import get_db
+
 logger = logging.getLogger(__name__)
 
-db = firestore.client()
+db = get_db()
 
 
-def add_location(email: str, longitude: float, latitude: float, status: str) -> bool:
+def add_attendance_location(email: str, longitude: float, latitude: float, status: str) -> bool:
     try:
         doc = {
             "email": email,
@@ -24,12 +26,12 @@ def add_location(email: str, longitude: float, latitude: float, status: str) -> 
         return False
 
 
-def get_all_user_locations_details():
+def get_all_attendance_details():
     docs = db.collection("user_location").stream()
     return [doc.to_dict() for doc in docs]
 
 
-def get_user_timeline(email: str, target_date: datetime.date):
+def get_attendance_timeline(email: str, target_date: datetime.date):
     query = db.collection("user_location").where("email", "==", email)
     docs = query.stream()
     timeline = []

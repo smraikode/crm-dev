@@ -4,8 +4,8 @@ from typing import Union, List
 
 from pydantic import BaseModel, EmailStr
 
-from db_client import get_db
 from models.lead import Lead
+from utils.db_client import get_db
 
 logger = logging.getLogger(__name__)
 

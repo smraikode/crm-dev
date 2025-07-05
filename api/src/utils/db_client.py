@@ -11,8 +11,16 @@ def get_db():
     global firebase_app, db
     if not firebase_app:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        cred_path = os.path.join(base_dir, "serviceAccountKey.json")
+        cred_path = os.path.join(base_dir, "../serviceAccountKey.json")
         cred = credentials.Certificate(cred_path)
         firebase_app = firebase_admin.initialize_app(cred)
         db = firestore.client()
     return db
+
+
+if __name__ == '__main__':
+    try:
+        get_db()
+        print("Firebase DB initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing Firebase DB: {e}")

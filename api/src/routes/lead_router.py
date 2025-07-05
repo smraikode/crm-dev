@@ -6,10 +6,10 @@ from models.lead import Lead
 from services.lead_service import create_lead, check_duplicate_lead, get_all_leads
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(prefix="/leads", tags=["leads"])
 
 
-@router.post("/leads", response_model=dict)
+@router.post("/", response_model=dict)
 async def create_new_lead(lead: Lead) -> dict:
     try:
         if check_duplicate_lead(email=lead.email, phone=lead.phone):
@@ -23,7 +23,7 @@ async def create_new_lead(lead: Lead) -> dict:
         raise HTTPException(status_code=500, detail="Failed to create lead")
 
 
-@router.get("/leads")
+@router.get("/")
 async def fetch_all_leads() -> list:
     try:
         return get_all_leads()

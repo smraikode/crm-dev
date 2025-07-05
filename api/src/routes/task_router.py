@@ -7,7 +7,7 @@ from services.task_service import create_task, get_tasks_by_email, get_tasks_of_
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 @router.post("/createTask")

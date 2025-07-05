@@ -8,7 +8,7 @@ from starlette import status
 from services.leave_service import extract_email_from_token, parse_dates, submit_leave_request
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(prefix="/leave", tags=["Leave Management"])
 
 
 class LeaveRequest(BaseModel):

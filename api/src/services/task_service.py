@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 from typing import List
 
-from db_client import get_db
 from models.task import Task
+from utils.db_client import get_db
 
 logger = logging.getLogger(__name__)
 
