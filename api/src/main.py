@@ -11,6 +11,7 @@ from routes.property_router import router as properties_router
 from routes.role_router import router as role_router
 from routes.search_router import router as search_router
 from routes.task_router import router as task_router
+from routes.user_router import router as user_router
 from routes.msg_router import router as msg_router
 from utils.auth_utils import require_roles
 
@@ -72,6 +73,11 @@ app.include_router(
 )
 app.include_router(
     msg_router,
+    prefix="/api",
+    dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))],
+)
+app.include_router(
+    user_router,
     prefix="/api",
     dependencies=[Depends(require_roles("admin", "manager", "lead", "employee"))],
 )
