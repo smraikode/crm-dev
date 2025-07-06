@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 import { MapPin, Home, IndianRupee } from "lucide-react";
 
 const ITEMS_PER_PAGE = 6;
@@ -29,7 +29,7 @@ const PropertiesPage = () => {
   const token = localStorage.getItem("token");
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`${activeEnvironment}/properties`, {
+      const res = await axios.get(`${apiEndpoints}/properties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (Array.isArray(res.data)) {

@@ -1,39 +1,36 @@
-import MyTeamAttendance from "../pages/Attendance/MyTeamAttendance";
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
-const LOCAL_URL = "http://localhost:8000/api";
-// const STAGE_URL = "https://stgfastapi.selfsync.ai";
-// const PROD_URL = "https://fastapi.selfsync.ai";
 
-const environments = {
-  local: LOCAL_URL,
-  // staging: STAGE_URL,
-  // prod: PROD_URL,
-};
-
-// const activeEnvironment = environments.staging;
-
-const activeEnvironment = environments.local;
 
 const apiEndpoints = {
-  login: `${activeEnvironment}/auth/login`,
-  register: `${activeEnvironment}/auth/signup`,
-  mytimeline: `${activeEnvironment}/attendance/mark`,
-  searchUsers: `${activeEnvironment}/search/search-users`,
-  assignRole: `${activeEnvironment}/permissions/assign-role`,
-  removeSubordinate: `${activeEnvironment}/permissions/remove-subordinate`,
-  createLead: `${activeEnvironment}/leads`,
-  //assignLead: `${activeEnvironment}/leads/assign `,
-  createTask: `${activeEnvironment}/tasks/createTask`,
-  getMyTasks: `${activeEnvironment}/tasks/my`,
-  updateTaskStatus: `${activeEnvironment}/tasks/updateStatus`,
-  getTeamTasks: `${activeEnvironment}/tasks/team`,
-  publicLead: `${activeEnvironment}/public-leads`,
-  //orgTree: `${activeEnvironment}/org-tree`,
-  getProperties: `${activeEnvironment}/properties`,
-  sendSMS: `${activeEnvironment}/msg-service/send-sms`,
-  sendWhatsApp: `${activeEnvironment}/msg-service/send-whatsapp`,
-  MyTeamAttendance: `${activeEnvironment}/attendance/team`,
-  getOfficeLocations: `${activeEnvironment}/user/get-office`,
+
+
+  login: `${BACKEND_URL}/auth/login`,
+  register: `${BACKEND_URL}/auth/signup`,
+  mytimeline: `${BACKEND_URL}/attendance/mark`,
+  searchUsers: `${BACKEND_URL}/search/search-users`,
+  assignRole: `${BACKEND_URL}/permissions/assign-role`,
+  removeSubordinate: `${BACKEND_URL}/permissions/remove-subordinate`,
+  createLead: `${BACKEND_URL}/leads`,
+  createTask: `${BACKEND_URL}/tasks/createTask`,
+  getMyTasks: `${BACKEND_URL}/tasks/my`,
+  updateTaskStatus: `${BACKEND_URL}/tasks/updateStatus`,
+  getTeamTasks: `${BACKEND_URL}/tasks/team`,
+  publicLead: `${BACKEND_URL}/public-leads`,
+  getProperties: `${BACKEND_URL}/properties`,
+  sendSMS: `${BACKEND_URL}/msg-service/send-sms`,
+  sendWhatsApp: `${BACKEND_URL}/msg-service/send-whatsapp`,
+  MyTeamAttendance: `${BACKEND_URL}/attendance/team`,
+  getOfficeLocations: `${BACKEND_URL}/user/get-office`,
+  getAllOffices: `${BACKEND_URL}/offices`,
+  assignOfficeToUser: `${BACKEND_URL}/user/add-office`,
+  //assignLead: `${BACKEND_URL}/leads/assign`,
+  //orgTree: `${BACKEND_URL}/org-tree`,
+
+
 };
 
-export { activeEnvironment, apiEndpoints };
+
+
+
+export { apiEndpoints };

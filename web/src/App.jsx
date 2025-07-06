@@ -19,6 +19,7 @@ import PublicLeadForm from "./pages/Leads/publicLeadForm";
 import PropertiesPage from "./pages/properties/PropertiesPage";
 import ManageProperties from "./pages/properties/manageProperties";
 import MyTeamAttendance from "./pages/Attendance/MyTeamAttendance";
+import SiteAssign from "./pages/siteAssign/SiteAssign";
 
 function App() {
   return (
@@ -120,6 +121,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/site-assign"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <SiteAssign/>
+              </ProtectedRoute>
+            }
+          />
+
+
 
 
           {/* <Route

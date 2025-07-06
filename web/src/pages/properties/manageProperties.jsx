@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Tab } from "@headlessui/react";
 import { Pencil, Trash2 } from "lucide-react";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -29,7 +29,7 @@ const ManageProperties = () => {
   const token = localStorage.getItem("token");
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`${activeEnvironment}/properties`, {
+      const res = await axios.get(`${apiEndpoints}/properties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProperties(Array.isArray(res.data) ? res.data : []);
@@ -71,14 +71,14 @@ const ManageProperties = () => {
     try {
       if (isEditingId) {
         await axios.put(
-          `${activeEnvironment}/properties/${formData.id}`,
+          `${apiEndpoints}/properties/${formData.id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Property updated");
       } else {
         await axios.post(
-          `${activeEnvironment}/properties`,
+          `${apiEndpoints}/properties`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -100,7 +100,7 @@ const ManageProperties = () => {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`${activeEnvironment}/properties/${id}`, {
+      await axios.delete(`${apiEndpoints}/properties/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("Property removed");

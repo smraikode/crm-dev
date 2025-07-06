@@ -64,7 +64,7 @@ app.include_router(
 app.include_router(
     office_router,
     prefix="/api",
-    dependencies=[Depends(require_roles("admin", "manager"))],
+    dependencies=[Depends(require_roles("admin", "manager","lead", "employee"))],
 )
 app.include_router(
     search_router,

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 
 const LeadCreate = () => {
   const [lead, setLead] = useState({
@@ -29,7 +29,7 @@ const LeadCreate = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await axios.get(`${activeEnvironment}/properties`, {
+        const res = await axios.get(`${apiEndpoints}/properties`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -79,7 +79,7 @@ const LeadCreate = () => {
 
     try {
       setLoading(true);
-      await axios.post(`${activeEnvironment}/leads`, finalPayload, {
+      await axios.post(`${apiEndpoints}/leads`, finalPayload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

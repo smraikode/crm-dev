@@ -129,6 +129,16 @@ const Sidebar = () => {
         },
       ]
       : []),
+
+      ...(userRole === "admin"
+    ? [
+        {
+          label: "Site Assign",
+          icon: <FaHome />,
+          path: "/site-assign", // <-- make sure this route matches your route path
+        },
+      ]
+    : []),
     // {
     //   label: "Org Tree",
     //   icon: <FaUserFriends />,

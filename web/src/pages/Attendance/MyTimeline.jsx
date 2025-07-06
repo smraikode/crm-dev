@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -187,7 +188,7 @@ const MyTimeline = () => {
             await sendLocationToBackend(coords, "update");
           }
         });
-      }, 900000); // every 15 minutes
+      }, 60000); // 15 min
     } else {
       alert(
         `❌ You are ${distance} meters away from the site. Must be within 1500m.`

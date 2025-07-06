@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon, XCircleIcon } from "@heroicons/react/20/solid";
 import { motion } from "framer-motion";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 
 const roles = [
   { value: "admin", label: "🛡️ Admin" },
@@ -46,7 +46,7 @@ export default function AssignRolePage() {
   const fetchUsers = async (query, rolesFilter = []) => {
     try {
       const res = await axios.get(
-        `${activeEnvironment}/search/search-users?query=${encodeURIComponent(query)}`,
+        `${apiEndpoints.searchUsers}?query=${encodeURIComponent(query)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -72,7 +72,7 @@ export default function AssignRolePage() {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get(
-        `${activeEnvironment}/roles/get-subordinates/${email}`,
+        `${apiEndpoints}/roles/get-subordinates/${email}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -121,7 +121,7 @@ export default function AssignRolePage() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `${activeEnvironment}/roles/assign-role`,
+        `${apiEndpoints}/roles/assign-role`,
         {
           email: selectedUser.email,
           role: selectedRole.value,
@@ -144,7 +144,7 @@ export default function AssignRolePage() {
       const lowerRoles = roleHierarchy[selectedRole.value] || [];
       try {
         const res = await axios.get(
-          `${activeEnvironment}/search/search-users?query=${encodeURIComponent(value)}`,
+          `${apiEndpoints}/search/search-users?query=${encodeURIComponent(value)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#00C49F"];
 
@@ -45,7 +45,7 @@ const LeadsAll = () => {
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get(`${activeEnvironment}/leads`, {
+      const res = await axios.get(`${apiEndpoints}/leads`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLeads(res.data);
@@ -65,14 +65,14 @@ const LeadsAll = () => {
       if (!userEmail) throw new Error("Invalid token or missing email (sub)");
 
       const res = await axios.get(
-        `${activeEnvironment}/roles/get-subordinates/${userEmail}`,
+        `${apiEndpoints}/roles/get-subordinates/${userEmail}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const subordinateEmails = res.data.subordinates.map((s) => s.split(" - ").pop().trim());
 
       const all = await axios.get(
-        `${activeEnvironment}/search/search-users?query=${encodeURIComponent(query)}`,
+        `${apiEndpoints}/search/search-users?query=${encodeURIComponent(query)}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -99,7 +99,7 @@ const LeadsAll = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post(`${activeEnvironment}/tasks/createTask`, {
+      await axios.post(`${apiEndpoints}/tasks/createTask`, {
         title: task.title,
         description: task.description,
         assigned_to: task.assignedTo,

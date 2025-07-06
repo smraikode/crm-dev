@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { activeEnvironment } from "../../services/apiConfig";
+import { apiEndpoints } from "../../services/apiConfig";
 
 const PublicLeadForm = () => {
   const [lead, setLead] = useState({
@@ -53,7 +53,7 @@ const PublicLeadForm = () => {
 
     try {
       setLoading(true);
-      await axios.post(`${activeEnvironment}/public-leads`, finalPayload);
+      await axios.post(`${apiEndpoints}/public-leads`, finalPayload);
       toast.success("Thank you! We will reach out soon.");
       setLead({
         firstName: "",
