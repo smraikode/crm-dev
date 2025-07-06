@@ -134,6 +134,28 @@ const MyTasks = () => {
     (t) => new Date(t.dueDate) < today && t.status !== "Completed"
   ).length;
   const highPriorityTasks = filteredTasks.filter((t) => t.priority === "High").length;
+  // whatspp and sms service
+  const sendMessage = async (type, to, message) => {
+    try {
+      const endpoint = type === "sms" ? apiEndpoints.sendSMS : apiEndpoints.sendWhatsApp;
+
+      const res = await axios.post(
+        endpoint,
+        {
+          to,
+          message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(`${type.toUpperCase()} sent!`);
+    } catch (err) {
+      toast.error(`Failed to send ${type.toUpperCase()}`);
+    }
+  };
 
   return (
     <div className="p-6">
@@ -313,6 +335,91 @@ const MyTasks = () => {
               <p><strong>Phone:</strong> {selectedTask.leadPhone || "-"}</p>
               <p><strong>Project:</strong> {selectedTask.leadProject || "-"}</p>
             </div>
+
+            {selectedTask?.leadPhone && (
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() =>
+                    toast.info(
+                      ({ closeToast }) => (
+                        <div>
+                          <p className="mb-2">
+                            Confirm sending <strong>SMS</strong> to {selectedTask.leadPhone}?
+                          </p>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                sendMessage(
+                                  "sms",
+                                  selectedTask.leadPhone,
+                                  `Hi ${selectedTask.leadName}, regarding your project ${selectedTask.leadProject}...`
+                                );
+                                closeToast();
+                              }}
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                            >
+                              Yes
+                            </button>
+                            <button
+                              onClick={closeToast}
+                              className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded text-sm"
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                      { autoClose: false }
+                    )
+                  }
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm w-full"
+                >
+                  Send SMS
+                </button>
+
+                <button
+                  onClick={() =>
+                    toast.info(
+                      ({ closeToast }) => (
+                        <div>
+                          <p className="mb-2">
+                            Confirm sending <strong>WhatsApp</strong> to {selectedTask.leadPhone}?
+                          </p>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                sendMessage(
+                                  "whatsapp",
+                                  selectedTask.leadPhone,
+                                  `Hello ${selectedTask.leadName}, this is about your interest in project ${selectedTask.leadProject}.`
+                                );
+                                closeToast();
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                            >
+                              Yes
+                            </button>
+                            <button
+                              onClick={closeToast}
+                              className="bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded text-sm"
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                      { autoClose: false }
+                    )
+                  }
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm w-full"
+                >
+                  Send WhatsApp Message
+                </button>
+
+              </div>
+            )}
+
+
           </div>
         </div>
       )}
