@@ -1,6 +1,5 @@
 
-
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import { Box, Text } from 'dripsy';
@@ -8,14 +7,9 @@ import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiEndpoints } from '../apiconfig/apiconfig';
+import { second } from '@env';
 
-// 🏗️ Construction site GPS (change if needed)
-const siteLocation = {
-  latitude: 17.4221891,
-  longitude: 78.3819498,
-};
 
-// 📏 Helper to get distance between two coordinates
 const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
   const toRad = (val) => (val * Math.PI) / 180;
   const R = 6371000;
@@ -30,49 +24,66 @@ const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
 
 export default function AttendanceScreen() {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
+  const [siteLocation, setSiteLocation] = useState(null);
   const [error, setError] = useState('');
   const [isClockedIn, setIsClockedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [distance, setDistance] = useState(null);
   const intervalRef = useRef(null);
 
-  const fetchToken = async () => {
-    const token = await AsyncStorage.getItem('token'); // replace with your key if different
-    return token;
-  };
+  const fetchToken = async () => await AsyncStorage.getItem('token');
 
-  const sendLocationToBackend = async (coords, status = 'update') => {
+  const fetchSiteLocation = async () => {
     try {
       const token = await fetchToken();
       if (!token) {
-        console.warn('⚠️ No token found.');
+        setError('Token missing');
         return;
       }
 
-      const payload = {
-        status,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        timestamp: new Date().toISOString(),
-      };
-
-      await axios.post(apiEndpoints.myTimeline, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const res = await axios.get(apiEndpoints.getOfficeLocations, {
+        headers: { Authorization: `Bearer ${token}` },
+        validateStatus: () => true, // allow handling of 404 manually
       });
 
-      console.log(`📡 Sent [${status}] to backend:`, payload);
+      if (res.status === 404 || !res.data.office_details) {
+        setSiteLocation(null);
+        setError('');
+        Alert.alert(
+          '❌ No Site Assigned',
+          'You have not been assigned a site yet. Please contact your admin.'
+        );
+        return;
+      }
+
+      const office = res.data.office_details;
+
+      if (!office.latitude || !office.longitude) {
+        setSiteLocation(null);
+        setError('');
+        Alert.alert(
+          '❌ No Site Assigned',
+          'Your assigned site location is invalid. Please contact your admin.'
+        );
+        return;
+      }
+
+      setSiteLocation({
+        latitude: office.latitude,
+        longitude: office.longitude,
+        name: office.name,
+      });
+
+      console.log('🏢 Site Location:', office);
     } catch (err) {
-      console.error('❌ Failed to send location:', err.message);
+      console.error('❌ Failed to fetch site:', err.message);
+      setError('Could not connect to server');
     }
   };
 
-  const fetchCurrentLocation = async () => {
+  const fetchCurrentLocation = async (status = null) => {
     try {
-      setLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
+      const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+      if (locStatus !== 'granted') {
         setError('Location permission denied.');
         return;
       }
@@ -85,37 +96,81 @@ export default function AttendanceScreen() {
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
       };
+
       setLocation(coords);
-      console.log('📍 Current Location:', coords);
+
+      if (siteLocation) {
+        const dist = getDistanceFromLatLonInMeters(
+          coords.latitude,
+          coords.longitude,
+          siteLocation.latitude,
+          siteLocation.longitude
+        );
+        setDistance(Math.round(dist));
+
+        if (status) {
+          await sendLocationToBackend(coords, status);
+        }
+      }
     } catch (err) {
-      console.error('❌ Location error:', err);
-      setError('Unable to fetch location');
-    } finally {
-      setLoading(false);
+      console.error('❌ Location error:', err.message);
+      Alert.alert(
+        '📍 Location Not Available',
+        'Unable to fetch your GPS location. Please check permissions or try again.'
+      );
+      setError('');
     }
   };
 
+  const sendLocationToBackend = useCallback(async (coords, status) => {
+    try {
+      const token = await fetchToken();
+      if (!token) return;
+
+      const payload = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        status,
+        timestamp: new Date().toISOString(),
+      };
+
+      await axios.post(apiEndpoints.myTimeline, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log(`📡 Sent [${status}] to backend`, payload);
+    } catch (err) {
+      console.error('❌ Error sending location:', err.message);
+    }
+  }, []);
+
   const handleClockIn = async () => {
-    const distance = getDistanceFromLatLonInMeters(
+    if (!siteLocation) return Alert.alert('⚠️ Error', 'Site location not loaded');
+    if (!location.latitude) return Alert.alert('⚠️ Error', 'Current location not available');
+
+    const dist = getDistanceFromLatLonInMeters(
       location.latitude,
       location.longitude,
       siteLocation.latitude,
       siteLocation.longitude
     );
 
-    if (distance <= 1000) {
+    if (dist <= 1500) {
       setIsClockedIn(true);
-      Alert.alert('✅ Clock In', 'You have clocked in successfully');
       await sendLocationToBackend(location, 'clockin');
+      Alert.alert('✅ Clocked in', 'You have successfully clocked in.');
+
 
       intervalRef.current = setInterval(async () => {
-        const loc = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Highest,
-        });
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
         const coords = {
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
         };
+
         setLocation(coords);
 
         const dist = getDistanceFromLatLonInMeters(
@@ -124,75 +179,65 @@ export default function AttendanceScreen() {
           siteLocation.latitude,
           siteLocation.longitude
         );
+        setDistance(Math.round(dist));
 
-        if (dist > 1000) {
+        if (dist > 1500) {
           setIsClockedIn(false);
           await sendLocationToBackend(coords, 'auto-clockout');
           clearInterval(intervalRef.current);
           intervalRef.current = null;
-          Alert.alert('⚠️ Auto Clock-Out', 'You moved out of site (100m limit).');
+          Alert.alert('⚠️ Auto Clock-Out', 'You moved out of range.');
         } else {
           await sendLocationToBackend(coords, 'update');
         }
-      }, 900000); // every 15 min    //for 1min 60,000
+      }, second);
     } else {
-      Alert.alert('❌ Too Far', `You are ${Math.round(distance)}m away from the site.`);
+      Alert.alert('❌ Too Far', `You are ${Math.round(dist)}m away. Required: ≤ 1500m`);
     }
   };
 
   const handleClockOut = async () => {
     setIsClockedIn(false);
     await sendLocationToBackend(location, 'clockout');
-    Alert.alert('📤 Clock Out', 'You have successfully clocked out.');
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    Alert.alert('✅ Clocked Out', 'You have successfully clocked out.');
+    if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
   useEffect(() => {
-    fetchCurrentLocation();
+    (async () => {
+      await fetchSiteLocation();
+      await fetchCurrentLocation();
+    })();
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
 
   const hasLocation = location.latitude && location.longitude;
-  const distanceFromSite = hasLocation
-    ? Math.round(
-        getDistanceFromLatLonInMeters(
-          location.latitude,
-          location.longitude,
-          siteLocation.latitude,
-          siteLocation.longitude
-        )
-      )
-    : null;
+  const hasSite = siteLocation?.latitude && siteLocation?.longitude;
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       <Box sx={{ mt: 22, mb: 12 }}>
-        <Text sx={{ fontSize: 24, fontWeight: 'bold', color: '#007AFF',ml:25 }}>
-          📍 Mark Your Attendance
+        <Text sx={{ fontSize: 22, fontWeight: 'bold', color: '#007AFF' }}>
+          📍 My Timeline
         </Text>
-        <Text sx={{ fontSize: 14, color: 'grey' ,ml:78}}>
-          GPS-based location validation
+        <Text sx={{ fontSize: 14, color: 'grey' }}>
+          Track your attendance timeline
+        </Text>
+        <Text sx={{ fontSize: 14, color: 'black' }}>
+          Office Name: {siteLocation ? siteLocation.name : 'N/A'}
         </Text>
       </Box>
 
-      {error ? (
-        <Text sx={{ color: 'red', mb: 12 }}>{error}</Text>
-      ) : (
-        <Box sx={{ mb: 12 }}>
-          <Text>Latitude: {location.latitude ?? 'N/A'}</Text>
-          <Text>Longitude: {location.longitude ?? 'N/A'}</Text>
-          {distanceFromSite !== null && (
-            <Text>📏 Distance from site: {distanceFromSite} meters</Text>
-          )}
-          {loading && <Text>📡 Locating...</Text>}
-        </Box>
-      )}
+      {error ? <Text sx={{ color: 'red', mb: 12 }}>{error}</Text> : null}
+
+      <Box sx={{ mb: 12 }}>
+        <Text>Latitude: {location.latitude ?? 'N/A'}</Text>
+        <Text>Longitude: {location.longitude ?? 'N/A'}</Text>
+        {distance !== null && <Text>📏 Distance: {distance} meters</Text>}
+      </Box>
 
       <Box sx={{ flexDirection: 'row', justifyContent: 'space-between', mb: 20 }}>
         <TouchableOpacity
@@ -224,11 +269,11 @@ export default function AttendanceScreen() {
         </TouchableOpacity>
       </Box>
 
-      {hasLocation ? (
+      {hasLocation && hasSite ? (
         <MapView
           style={{
             width: Dimensions.get('window').width - 32,
-            height: 500,
+            height: 400,
             borderRadius: 16,
           }}
           region={{
@@ -242,7 +287,7 @@ export default function AttendanceScreen() {
           <Marker coordinate={siteLocation} title="Site" pinColor="red" />
         </MapView>
       ) : (
-        <Text>⏳ Waiting for GPS...</Text>
+        <Text>⏳ Waiting for GPS or Site Location...</Text>
       )}
     </ScrollView>
   );

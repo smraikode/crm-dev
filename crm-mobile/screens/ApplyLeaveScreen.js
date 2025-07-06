@@ -39,9 +39,10 @@ export default function ApplyLeaveScreen() {
         try {
           const decoded = jwtDecode(token);
           console.log('Decoded token:', decoded);
-          if (decoded?.sub) {
-            setEmail(decoded.sub);
-            console.log('Decoded email:', decoded.sub);
+
+          if (decoded?.email) {
+            setEmail(decoded.email);
+            console.log('Decoded email:', decoded.email);
           }
         } catch (e) {
           console.warn('Error decoding token:', e);
