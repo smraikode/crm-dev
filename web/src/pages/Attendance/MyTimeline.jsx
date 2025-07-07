@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
 import { apiEndpoints } from "../../services/apiConfig";
 
@@ -49,10 +50,14 @@ const MyTimeline = () => {
         });
       } else {
         setError("⚠️ Invalid office location received.");
+        toast.error("⚠️ Invalid office location received.");
+
       }
     } catch (err) {
       console.error("❌ Failed to fetch office location:", err);
       setError("Failed to fetch site location.");
+      toast.error("❌ No Site Assigned. Contact Admin.");
+
     }
   };
 
@@ -77,6 +82,8 @@ const MyTimeline = () => {
       console.log(`📡 Sent [${status}] to backend`, payload);
     } catch (err) {
       console.error("❌ Failed to send location:", err);
+      toast.error("❌ Failed to send location.");
+
     }
   }, []);
 
@@ -85,6 +92,8 @@ const MyTimeline = () => {
     (status = null) => {
       if (!navigator.geolocation) {
         setError("Geolocation is not supported by your browser.");
+        toast.error("Geolocation not supported.");
+
         return;
       }
 
@@ -114,6 +123,8 @@ const MyTimeline = () => {
         },
         (err) => {
           setError("❌ Location access denied. Please enable location.");
+          toast.error("❌ Please enable location permission.");
+
           console.error("Geolocation error:", err);
         },
         { enableHighAccuracy: true }
@@ -131,8 +142,8 @@ const MyTimeline = () => {
     }
 
     navigator.geolocation.getCurrentPosition(
-      () => {},
-      () => {}
+      () => { },
+      () => { }
     );
     fetchSiteLocation();
     fetchAndSetLocation();
@@ -153,13 +164,16 @@ const MyTimeline = () => {
   // 🕒 Clock In
   const handleClockIn = async () => {
     if (!siteLocation) {
-      alert("❌ Site location not loaded.");
+      toast.error("❌ Site location not loaded.");
+
       return;
     }
 
     if (distance !== null && distance <= 1500) {
       setIsClockedIn(true);
       await sendLocationToBackend(location, "clockin");
+      toast.success("✅ Clocked in successfully.");
+
 
       intervalRef.current = setInterval(() => {
         navigator.geolocation.getCurrentPosition(async (position) => {
@@ -183,16 +197,16 @@ const MyTimeline = () => {
             setIsClockedIn(false);
             await sendLocationToBackend(coords, "auto-clockout");
             clearInterval(intervalRef.current);
-            alert("⚠️ Auto clock-out: You moved away from the site.");
+            toast.warn("⚠️ Auto clock-out: You moved away from the site.");
+
           } else {
             await sendLocationToBackend(coords, "update");
           }
         });
       }, 60000); // 15 min
     } else {
-      alert(
-        `❌ You are ${distance} meters away from the site. Must be within 1500m.`
-      );
+      toast.error(`❌ Too far from site. You are ${distance}m away (must be within 1500m).`);
+
     }
   };
 
