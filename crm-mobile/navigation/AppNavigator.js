@@ -7,12 +7,12 @@ import ReportsScreen from '../screens/ReportsScreen';
 import PayrollScreen from '../screens/PayrollScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SplashScreen from '../screens/SplashScreen';
-import AttendanceToday from '../screens/AttendanceToday';
 import ApplyLeaveScreen from '../screens/ApplyLeaveScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import SiteInstructionScreen from '../screens/SiteInstructionScreen';
 import SupervisorHandlingScreen from '../screens/SupervisiorScreen/SupervisorHandlingScreen';
 import MyTimelineUserScreen from '../screens/MyTimelineUserScreen';
+import ShiftChanges from '../screens/ShiftChanges';
 
 
 const Stack = createNativeStackNavigator();
@@ -25,7 +25,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Attendance" component={AttendanceScreen} />
-      <Stack.Screen name="AttendanceToday" component={AttendanceToday} />
+      <Stack.Screen name="ShiftChanges" component={ShiftChanges } />
       <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} />
       <Stack.Screen name="MyTimeline" component={MyTimelineUserScreen} />
       <Stack.Screen name="SiteInstruction" component={SiteInstructionScreen} />

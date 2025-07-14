@@ -1,5 +1,196 @@
 
 
+// import React, { useEffect, useState } from 'react';
+// import { ScrollView, Text, View, Pressable } from 'dripsy';
+// import { Dimensions, Platform } from 'react-native';
+// import DateTimePicker from '@react-native-community/datetimepicker';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+// import axios from 'axios';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { apiEndpoints } from '../apiconfig/apiconfig';
+// import HistoryCard from '../components/HistoryCard';
+
+// export default function HistoryScreen() {
+//   const screenHeight = Dimensions.get('window').height;
+//   const [showPicker, setShowPicker] = useState(false);
+//   const [selectedDate, setSelectedDate] = useState(null);
+//   const [timeline, setTimeline] = useState([]);
+
+//   useEffect(() => {
+//     fetchTimeline();
+//   }, [selectedDate]);
+
+//   const formatDuration = (ms) => {
+//     const totalSecs = Math.floor(ms / 1000);
+//     const hrs = Math.floor(totalSecs / 3600);
+//     const mins = Math.floor((totalSecs % 3600) / 60);
+//     const secs = totalSecs % 60;
+
+//     if (hrs > 0) {
+//       return `${hrs} hrs ${mins} mins ${secs} sec`;
+//     } else {
+//       return `${mins} mins ${secs} sec`;
+//     }
+//   };
+
+//   const fetchTimeline = async () => {
+//     try {
+//       const token = await AsyncStorage.getItem('token');
+//       let url = apiEndpoints.attendanceHistory;
+
+//       if (selectedDate) {
+//         const isoDate = selectedDate.toISOString().split('T')[0];
+//         url += `?date=${isoDate}`;
+//       }
+
+//       const res = await axios.get(url, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+
+//       const data = res.data.timeline || [];
+
+//       const grouped = {};
+//       data.forEach((entry) => {
+//         const dateKey = new Date(entry.timestamp).toDateString();
+//         if (!grouped[dateKey]) grouped[dateKey] = [];
+//         grouped[dateKey].push(entry);
+//       });
+
+//       const logs = Object.entries(grouped).map(([date, records]) => {
+//         const sorted = records.sort(
+//           (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+//         );
+
+//         const clockIn = sorted[0]?.timestamp || null;
+//         const clockOut = sorted[sorted.length - 1]?.timestamp || null;
+
+//         const shiftStart = new Date(date + ' 11:00:00');
+//         const shiftEnd = new Date(date + ' 15:00:00');
+
+//         const clockInDate = clockIn ? new Date(clockIn) : null;
+//         const clockOutDate = clockOut ? new Date(clockOut) : null;
+
+//         let status = 'On Time';
+//         let lateDuration = '';
+//         let earlyLogout = '';
+
+//         if (clockInDate && clockInDate >= shiftStart) {
+//           const diffMs = clockInDate - shiftStart;
+//           lateDuration = formatDuration(diffMs);
+//           status = 'Late';
+//         }
+
+//         if (clockOutDate && clockOutDate < shiftEnd) {
+//           const diffMs = shiftEnd - clockOutDate;
+//           earlyLogout = `${formatDuration(diffMs)} early logout`;
+//         }
+
+//         const effectiveMs =
+//           clockInDate && clockOutDate ? clockOutDate - clockInDate : 0;
+//         const effectiveHours = (effectiveMs / (1000 * 60 * 60)).toFixed(2);
+
+//         return {
+//           day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
+//           date: new Date(date).toLocaleDateString('en-US', {
+//             year: 'numeric',
+//             month: 'long',
+//             day: 'numeric',
+//           }),
+//           clockIn: clockInDate
+//             ? clockInDate.toLocaleTimeString('en-US', {
+//                 hour: '2-digit',
+//                 minute: '2-digit',
+//               })
+//             : '-',
+//           clockOut: clockOutDate
+//             ? clockOutDate.toLocaleTimeString('en-US', {
+//                 hour: '2-digit',
+//                 minute: '2-digit',
+//               })
+//             : '-',
+//           status,
+//           lateDuration,
+//           earlyLogout,
+//           shift: '11:00 AM - 3:00 PM',
+//           effectiveHours: clockInDate && clockOutDate ? `${effectiveHours} hrs` : '0 hrs',
+//           grossHours: '4 hrs',
+//         };
+//       });
+
+//       setTimeline(logs);
+//     } catch (err) {
+//       console.error('❌ Error loading history:', err.message);
+//     }
+//   };
+
+//   return (
+//     <View sx={{ flex: 1, bg: 'white' }}>
+//       <ScrollView
+//         sx={{
+//           flex: 1,
+//           px: 3,
+//           pt: screenHeight * 0.06,
+//           pb: 80,
+//         }}
+//       >
+//         <Text
+//           sx={{
+//             fontSize: 22,
+//             fontWeight: 'bold',
+//             color: '#111827',
+//             mb: 20,
+//             mt: 10,
+//             textAlign: 'center',
+//           }}
+//         >
+//           🗕️ Attendance History
+//         </Text>
+
+//         {timeline.length > 0 ? (
+//           timeline.map((log, index) => <HistoryCard key={index} log={log} />)
+//         ) : (
+//           <Text sx={{ textAlign: 'center', mt: 40, color: '#9CA3AF' }}>
+//             No records found for this date.
+//           </Text>
+//         )}
+//       </ScrollView>
+
+//       <Pressable
+//         onPress={() => setShowPicker(true)}
+//         sx={{
+//           position: 'absolute',
+//           bottom: 20,
+//           alignSelf: 'center',
+//           bg: '#2563EB',
+//           p: 12,
+//           borderRadius: 30,
+//           elevation: 5,
+//           shadowColor: '#000',
+//           shadowOffset: { width: 0, height: 2 },
+//           shadowOpacity: 0.2,
+//           shadowRadius: 4,
+//         }}
+//       >
+//         <Ionicons name="calendar" size={24} color="white" />
+//       </Pressable>
+
+//       {showPicker && (
+//         <DateTimePicker
+//           value={selectedDate || new Date()}
+//           mode="date"
+//           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+//           maximumDate={new Date()}
+//           onChange={(event, date) => {
+//             setShowPicker(false);
+//             if (date) setSelectedDate(date);
+//           }}
+//         />
+//       )}
+//     </View>
+//   );
+// }
+
+
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, View, Pressable } from 'dripsy';
 import { Dimensions, Platform } from 'react-native';
@@ -9,6 +200,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiEndpoints } from '../apiconfig/apiconfig';
 import HistoryCard from '../components/HistoryCard';
+import moment from 'moment';
 
 export default function HistoryScreen() {
   const screenHeight = Dimensions.get('window').height;
@@ -16,21 +208,49 @@ export default function HistoryScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [timeline, setTimeline] = useState([]);
 
+  const defaultShift = {
+    name: 'Morning Shift',
+    start_time: '09:30 AM',
+    end_time: '06:00 PM',
+  };
+
+  const [assignedShift, setAssignedShift] = useState({
+    shift: defaultShift,
+    startDate: null,
+    endDate: null,
+  });
+
   useEffect(() => {
-    fetchTimeline();
-  }, [selectedDate]);
+    loadAssignedShift();
+  }, []);
+
+  useEffect(() => {
+    if (assignedShift) fetchTimeline();
+  }, [selectedDate, assignedShift]);
+
+  const loadAssignedShift = async () => {
+    const data = await AsyncStorage.getItem('assignedShiftData');
+    if (data) {
+      const parsed = JSON.parse(data);
+      setAssignedShift(parsed);
+    }
+  };
 
   const formatDuration = (ms) => {
     const totalSecs = Math.floor(ms / 1000);
     const hrs = Math.floor(totalSecs / 3600);
     const mins = Math.floor((totalSecs % 3600) / 60);
     const secs = totalSecs % 60;
+    return hrs > 0
+      ? `${hrs} hrs ${mins} mins ${secs} sec`
+      : `${mins} mins ${secs} sec`;
+  };
 
-    if (hrs > 0) {
-      return `${hrs} hrs ${mins} mins ${secs} sec`;
-    } else {
-      return `${mins} mins ${secs} sec`;
-    }
+  const calculateGrossHours = (start, end) => {
+    const startTime = moment(start, 'hh:mm A');
+    const endTime = moment(end, 'hh:mm A');
+    const duration = moment.duration(endTime.diff(startTime));
+    return `${duration.asHours().toFixed(2)} hrs`;
   };
 
   const fetchTimeline = async () => {
@@ -64,17 +284,17 @@ export default function HistoryScreen() {
         const clockIn = sorted[0]?.timestamp || null;
         const clockOut = sorted[sorted.length - 1]?.timestamp || null;
 
-        const shiftStart = new Date(date + ' 11:00:00');
-        const shiftEnd = new Date(date + ' 15:00:00');
-
         const clockInDate = clockIn ? new Date(clockIn) : null;
         const clockOutDate = clockOut ? new Date(clockOut) : null;
+
+        const shiftStart = moment(`${date} ${assignedShift.shift.start_time}`, 'ddd MMM DD YYYY hh:mm A').toDate();
+        const shiftEnd = moment(`${date} ${assignedShift.shift.end_time}`, 'ddd MMM DD YYYY hh:mm A').toDate();
 
         let status = 'On Time';
         let lateDuration = '';
         let earlyLogout = '';
 
-        if (clockInDate && clockInDate >= shiftStart) {
+        if (clockInDate && clockInDate > shiftStart) {
           const diffMs = clockInDate - shiftStart;
           lateDuration = formatDuration(diffMs);
           status = 'Late';
@@ -111,13 +331,17 @@ export default function HistoryScreen() {
           status,
           lateDuration,
           earlyLogout,
-          shift: '11:00 AM - 3:00 PM',
+          shift: `${assignedShift.shift.start_time} - ${assignedShift.shift.end_time}`,
           effectiveHours: clockInDate && clockOutDate ? `${effectiveHours} hrs` : '0 hrs',
-          grossHours: '4 hrs',
+          grossHours: calculateGrossHours(
+            assignedShift.shift.start_time,
+            assignedShift.shift.end_time
+          ),
         };
       });
 
-      setTimeline(logs);
+      const sortedLogs = logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setTimeline(sortedLogs);
     } catch (err) {
       console.error('❌ Error loading history:', err.message);
     }
@@ -143,7 +367,7 @@ export default function HistoryScreen() {
             textAlign: 'center',
           }}
         >
-          🗕️ Attendance History
+          🗓️ Attendance History
         </Text>
 
         {timeline.length > 0 ? (
@@ -189,4 +413,3 @@ export default function HistoryScreen() {
     </View>
   );
 }
-

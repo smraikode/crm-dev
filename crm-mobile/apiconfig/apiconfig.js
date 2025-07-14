@@ -15,6 +15,11 @@ const apiEndpoints = {
   attendanceHistory: `${activeEnvironment}/attendance/history`,
   applyLeave: `${activeEnvironment}/leave/apply`,
   getOfficeLocations: `${activeEnvironment}/user/get-office`,
+
+  
+  // ✅ Add shift endpoint
+  getAllShifts: `${activeEnvironment}/shift/all`,
+  
 };
 
 export { activeEnvironment, apiEndpoints };

@@ -36,7 +36,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
     "react-native-vector-icons": "^10.2.0",
-    "react-native-web": "^0.20.0"
+    "react-native-web": "^0.20.0",
+    "expo-linear-gradient": "~14.1.5"
   },
   "devDependencies": {
     "eslint": "^9.29.0",
