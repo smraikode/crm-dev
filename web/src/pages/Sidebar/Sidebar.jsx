@@ -110,7 +110,7 @@ const Sidebar = () => {
       label: "Attendance",
       icon: <FaUserCheck />,
       submenu: [
-        { label: "My Attendance", path: "/attendance/my" },
+        { label: "My Attendance", path: "/attendance/myAttendance" },
         { label: "My Timeline", path: "/attendance/mytimeline" },
 
         ...(isManagerOrAbove

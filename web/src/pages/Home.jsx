@@ -3,7 +3,6 @@ import Sidebar from "./Sidebar/Sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "../componets/Navbar/Navbar";
 import { checkUserValid } from "../CommonUserValidCheck/checkUserValid";
-import  { useState } from 'react';
 
 const Home = () => {
   const navigate = useNavigate();

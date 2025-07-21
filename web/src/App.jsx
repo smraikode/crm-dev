@@ -20,6 +20,7 @@ import PropertiesPage from "./pages/properties/PropertiesPage";
 import ManageProperties from "./pages/properties/manageProperties";
 import MyTeamAttendance from "./pages/Attendance/MyTeamAttendance";
 import SiteAssign from "./pages/siteAssign/SiteAssign";
+import MyAttendance from "./pages/Attendance/MyAttendance";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         <Route path="/public-lead" element={<PublicLeadForm />} />
         {/* All routes with Sidebar + Navbar */}
         <Route path="/" element={<Home />}>
@@ -75,8 +76,17 @@ function App() {
           <Route
             path="attendance/mytimeline"
             element={
-              <ProtectedRoute allowedRoles={["admin", "manager", "lead","employee"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "lead", "employee"]}>
                 <MyTimeline />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="attendance/myAttendance"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "lead", "employee"]}>
+                <MyAttendance />
               </ProtectedRoute>
             }
           />
@@ -126,7 +136,7 @@ function App() {
             path="/site-assign"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
-                <SiteAssign/>
+                <SiteAssign />
               </ProtectedRoute>
             }
           />

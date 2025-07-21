@@ -1,3 +1,4 @@
+
 const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 
@@ -24,6 +25,9 @@ const apiEndpoints = {
   getOfficeLocations: `${BACKEND_URL}/user/get-office`,
   getAllOffices: `${BACKEND_URL}/offices`,
   assignOfficeToUser: `${BACKEND_URL}/user/add-office`,
+  MyAttendance: `${BACKEND_URL}/attendance/history`,
+  getSubordinates: `${BACKEND_URL}/roles/get-subordinates`, 
+
   //assignLead: `${BACKEND_URL}/leads/assign`,
   //orgTree: `${BACKEND_URL}/org-tree`,
 
