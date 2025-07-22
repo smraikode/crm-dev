@@ -26,7 +26,8 @@ const apiEndpoints = {
   getAllOffices: `${BACKEND_URL}/offices`,
   assignOfficeToUser: `${BACKEND_URL}/user/add-office`,
   MyAttendance: `${BACKEND_URL}/attendance/history`,
-  getSubordinates: `${BACKEND_URL}/roles/get-subordinates`, 
+  getSubordinates: `${BACKEND_URL}/roles/get-subordinates`,
+
 
   //assignLead: `${BACKEND_URL}/leads/assign`,
   //orgTree: `${BACKEND_URL}/org-tree`,
