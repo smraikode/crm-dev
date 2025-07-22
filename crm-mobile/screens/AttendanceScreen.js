@@ -293,8 +293,6 @@
 //   );
 // }
 
-
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import * as Location from 'expo-location';
@@ -311,13 +309,12 @@ export default function AttendanceScreen() {
   const [isClockedIn, setIsClockedIn] = useState(false);
   const intervalRef = useRef(null);
   const locationMonitorRef = useRef(null);
-  const wasLocationOff = useRef(false); // to track location off → on
+  const wasLocationOff = useRef(false); // to avoid repeated alerts
 
   const fetchToken = async () => await AsyncStorage.getItem('token');
 
   const checkLocationServices = async () => {
-    const isEnabled = await Location.hasServicesEnabledAsync();
-    return isEnabled;
+    return await Location.hasServicesEnabledAsync();
   };
 
   const fetchCurrentLocation = async () => {
@@ -390,17 +387,17 @@ export default function AttendanceScreen() {
       const isOn = await checkLocationServices();
       if (!isOn) {
         if (!wasLocationOff.current) {
-          Alert.alert('⚠️ Location Off', 'Please turn on your location to mark attendance.');
           wasLocationOff.current = true;
+          Alert.alert('⚠️ Location Off', 'Please turn on your location to mark attendance.');
         }
-        return; // Skip sending location
+        return;
       }
 
       const liveCoords = await fetchCurrentLocation();
       if (liveCoords) {
         if (wasLocationOff.current) {
-          Alert.alert('✅ Location On', 'Thank you for turning on your location. Attendance is now resumed.');
           wasLocationOff.current = false;
+          Alert.alert('✅ Location On', 'Thank you for turning on your location. Attendance is now resumed.');
         }
         await sendLocationToBackend(liveCoords, 'update');
       }
@@ -444,16 +441,23 @@ export default function AttendanceScreen() {
   };
 
   useEffect(() => {
-    // Initial location fetch
     fetchCurrentLocation();
 
-    // Monitor location ON/OFF status every second
+    // Every 1 sec → check location ON/OFF and send alert once per toggle
     locationMonitorRef.current = setInterval(async () => {
       const isOn = await checkLocationServices();
       if (!isOn) {
-        setError('⚠️ Location is OFF. Please turn on your location.');
+        if (!wasLocationOff.current) {
+          wasLocationOff.current = true;
+          setError('⚠️ Location is OFF. Please turn on your location.');
+          Alert.alert('⚠️ Location Off', 'Please turn on your location.');
+        }
       } else {
-        setError('');
+        if (wasLocationOff.current) {
+          wasLocationOff.current = false;
+          setError('');
+          Alert.alert('✅ Location On', 'Location is back ON. Thank you!');
+        }
       }
     }, 1000);
 
