@@ -385,7 +385,7 @@ const MyTimeline = () => {
     // Start interval every 1 min (60000ms)
     intervalRef.current = setInterval(() => {
       fetchLocationAndSend("update");
-    }, 60000);
+    },900000);
 
     toast.success("✅ Clocked in successfully.");
   };
