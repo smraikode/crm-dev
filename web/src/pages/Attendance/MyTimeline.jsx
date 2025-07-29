@@ -279,12 +279,15 @@ import { toast } from "react-toastify";
 import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
 import { apiEndpoints } from "../../services/apiConfig";
 
+
 const MyTimeline = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [error, setError] = useState("");
   const [isClockedIn, setIsClockedIn] = useState(false);
   const intervalRef = useRef(null);
   const navigate = useNavigate();
+
+  const timeout = parseInt(import.meta.env.VITE_MILLISECONDS, 10);
 
   // ✅ Send location to backend
   const sendLocationToBackend = useCallback(async (coords, status) => {
@@ -385,7 +388,7 @@ const MyTimeline = () => {
     // Start interval every 1 min (60000ms)
     intervalRef.current = setInterval(() => {
       fetchLocationAndSend("update");
-    }, 60000);
+    }, timeout);
 
     toast.success("✅ Clocked in successfully.");
   };
