@@ -287,7 +287,7 @@ const MyTimeline = () => {
   const intervalRef = useRef(null);
   const navigate = useNavigate();
 
-  const timeout = parseInt(import.meta.env.VITE_MILLISECONDS, 10);
+  const timeout = parseInt(import.meta.env.VITE_MILLISECONDS, 10);   
 
   // ✅ Send location to backend
   const sendLocationToBackend = useCallback(async (coords, status) => {
