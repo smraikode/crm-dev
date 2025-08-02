@@ -32,8 +32,10 @@ const apiEndpoints = {
   getProperties: `${activeEnvironment}/properties`,
   sendSMS: `${activeEnvironment}/msg-service/send-sms`,
   sendWhatsApp: `${activeEnvironment}/msg-service/send-whatsapp`,
+  callClient: `${activeEnvironment}/msg-service/call-client`,
   MyTeamAttendance: `${activeEnvironment}/attendance/team`,
   getOfficeLocations: `${activeEnvironment}/user/get-office`,
+  
 };
 
 export { activeEnvironment, apiEndpoints };

@@ -18,3 +18,10 @@ def send_whatsapp(to_number: str, message: str):
     return client.messages.create(
         body=message, from_=WHATSAPP_SANDBOX_NUMBER, to=f"whatsapp:{to_number}"
     )
+
+def make_call(to_number: str, twiml_url: str):
+    return client.calls.create(
+        to=to_number,
+        from_=TWILIO_PHONE_NUMBER,
+        url=twiml_url
+    )

@@ -5,6 +5,7 @@ import getDecodedToken from "../../utils/decodeToken";
 import { apiEndpoints } from "../../services/apiConfig";
 import { Briefcase, Filter, Loader2, Search } from "lucide-react";
 
+
 const statusOptions = ["Pending", "In Progress", "Completed"];
 const priorityOptions = ["High", "Medium", "Low"];
 
@@ -415,6 +416,32 @@ const MyTasks = () => {
                 >
                   Send WhatsApp Message
                 </button>
+                {/* Call Client Button */}
+                {/* Call Client Button */}
+                <button
+                  onClick={async () => {
+                    try {
+                      toast.info("Initiating call...");
+                      const res = await axios.post(
+                        `${apiEndpoints.callClient}?to_number=${encodeURIComponent(selectedTask.leadPhone)}`,
+                        {},
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+                      toast.success(`Call started (SID: ${res.data.call_sid})`);
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Failed to start call");
+                    }
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm w-full"
+                >
+                  Call Client
+                </button>
+
 
               </div>
             )}
