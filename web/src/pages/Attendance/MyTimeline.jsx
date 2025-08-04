@@ -1,93 +1,221 @@
-// import React, { useEffect, useRef, useState } from "react";
+
+// import React, { useCallback, useEffect, useRef, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import axios from "axios";
+// import { toast } from "react-toastify";
 // import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
 // import { apiEndpoints } from "../../services/apiConfig";
+
+// const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
+//   const toRad = (val) => (val * Math.PI) / 180;
+//   const R = 6371000;
+//   const dLat = toRad(lat2 - lat1);
+//   const dLon = toRad(lon2 - lon1);
+//   const a =
+//     Math.sin(dLat / 2) ** 2 +
+//     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//   return R * c;
+// };
 
 // const MyTimeline = () => {
 //   const [location, setLocation] = useState({ latitude: null, longitude: null });
 //   const [error, setError] = useState("");
 //   const [isClockedIn, setIsClockedIn] = useState(false);
+//   const [distance, setDistance] = useState(null);
+//   const [siteLocation, setSiteLocation] = useState(null);
 //   const intervalRef = useRef(null);
 //   const navigate = useNavigate();
 
-//   // Fetch location for map display only (not sending to backend)
+//   // 🔁 Office location fetch
+//   const fetchSiteLocation = async () => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return;
+
+//     try {
+//       const response = await axios.get(apiEndpoints.getOfficeLocations, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       const office = response.data.office_details;
+//       console.log("🏢 Office location received:", office);
+//       console.log("latitude:", office.latitude, "longitude", office.longitude);
+
+//       if (office?.latitude && office?.longitude) {
+//         setSiteLocation({
+//           latitude: office.latitude,
+//           longitude: office.longitude,
+//         });
+//       } else {
+//         setError("⚠️ Invalid office location received.");
+//         toast.error("⚠️ Invalid office location received.");
+
+//       }
+//     } catch (err) {
+//       console.error("❌ Failed to fetch office location:", err);
+//       setError("Failed to fetch site location.");
+//       toast.error("❌ No Site Assigned. Contact Admin.");
+
+//     }
+//   };
+
+//   // 📡 Send location to backend
+//   const sendLocationToBackend = useCallback(async (coords, status) => {
+//     const token = localStorage.getItem("token");
+//     if (!token) return;
+
+//     const payload = {
+//       latitude: coords.latitude,
+//       longitude: coords.longitude,
+//       status,
+//       timestamp: new Date().toISOString(),
+//     };
+
+//     try {
+//       await axios.post(apiEndpoints.mytimeline, payload, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+//       console.log(`📡 Sent [${status}] to backend`, payload);
+//     } catch (err) {
+//       console.error("❌ Failed to send location:", err);
+//       toast.error("❌ Failed to send location.");
+
+//     }
+//   }, []);
+
+//   // 📍 Get current location
+//   const fetchAndSetLocation = useCallback(
+//     (status = null) => {
+//       if (!navigator.geolocation) {
+//         setError("Geolocation is not supported by your browser.");
+//         toast.error("Geolocation not supported.");
+
+//         return;
+//       }
+
+//       navigator.geolocation.getCurrentPosition(
+//         async (position) => {
+//           const coords = {
+//             latitude: position.coords.latitude,
+//             longitude: position.coords.longitude,
+//           };
+
+//           setLocation(coords);
+
+//           if (siteLocation) {
+//             const dist = getDistanceFromLatLonInMeters(
+//               coords.latitude,
+//               coords.longitude,
+//               siteLocation.latitude,
+//               siteLocation.longitude
+//             );
+
+//             setDistance(Math.round(dist));
+
+//             if (status) {
+//               await sendLocationToBackend(coords, status);
+//             }
+//           }
+//         },
+//         (err) => {
+//           setError("❌ Location access denied. Please enable location.");
+//           toast.error("❌ Please enable location permission.");
+
+//           console.error("Geolocation error:", err);
+//         },
+//         { enableHighAccuracy: true }
+//       );
+//     },
+//     [siteLocation, sendLocationToBackend]
+//   );
+
+//   // 🔐 Validate + fetch site + current location
 //   useEffect(() => {
 //     const isValid = checkUserValid();
 //     if (!isValid) {
 //       navigate("/login");
 //       return;
 //     }
+
 //     navigator.geolocation.getCurrentPosition(
-//       (position) => {
-//         setLocation({
-//           latitude: position.coords.latitude,
-//           longitude: position.coords.longitude,
-//         });
-//       },
-//       (err) => {
-//         setError("Location access denied. Please enable location.");
-//         console.error("❌ Geolocation error:", err);
-//       }
+//       () => { },
+//       () => { }
 //     );
+//     fetchSiteLocation();
+//     fetchAndSetLocation();
+//   }, [navigate]);
+
+//   useEffect(() => {
+//     if (siteLocation) {
+//       fetchAndSetLocation();
+//     }
+//   }, [siteLocation, fetchAndSetLocation]);
+
+//   useEffect(() => {
 //     return () => {
 //       if (intervalRef.current) clearInterval(intervalRef.current);
 //     };
-//   }, [navigate]);
+//   }, []);
 
-//   const sendLocationToBackend = (coords, type) => {
-//     axios
-//       .post(
-//         apiEndpoints.mytimeline,
-//         { ...coords, type },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       )
-//       .then((res) => {
-//         console.log(`📍 ${type} location sent:`, res.data);
-//       })
-//       .catch((err) => {
-//         console.error(`❌ Failed to send ${type} location:`, err);
-//       });
+//   // 🕒 Clock In
+//   const handleClockIn = async () => {
+//     if (!siteLocation) {
+//       toast.error("❌ Site location not loaded.");
+
+//       return;
+//     }
+
+//     if (distance !== null && distance <= 1500) {
+//       setIsClockedIn(true);
+//       await sendLocationToBackend(location, "clockin");
+//       toast.success("✅ Clocked in successfully.");
+
+
+//       intervalRef.current = setInterval(() => {
+//         navigator.geolocation.getCurrentPosition(async (position) => {
+//           const coords = {
+//             latitude: position.coords.latitude,
+//             longitude: position.coords.longitude,
+//           };
+
+//           setLocation(coords);
+
+//           const dist = getDistanceFromLatLonInMeters(
+//             coords.latitude,
+//             coords.longitude,
+//             siteLocation.latitude,
+//             siteLocation.longitude
+//           );
+
+//           setDistance(Math.round(dist));
+
+//           if (dist > 1500) {
+//             setIsClockedIn(false);
+//             await sendLocationToBackend(coords, "auto-clockout");
+//             clearInterval(intervalRef.current);
+//             toast.warn("⚠️ Auto clock-out: You moved away from the site.");
+
+//           } else {
+//             await sendLocationToBackend(coords, "update");
+//           }
+//         });
+//       }, 60000); // 15 min
+//     } else {
+//       toast.error(`❌ Too far from site. You are ${distance}m away (must be within 1500m).`);
+
+//     }
 //   };
 
-//   const fetchAndSendLocation = (type = "update") => {
-//     navigator.geolocation.getCurrentPosition(
-//       (position) => {
-//         const coords = {
-//           latitude: position.coords.latitude,
-//           longitude: position.coords.longitude,
-//         };
-//         setLocation(coords);
-//         sendLocationToBackend(coords, type);
-//       },
-//       (err) => {
-//         setError("Location access denied. Please enable location.");
-//         console.error("❌ Geolocation error:", err);
-//       }
-//     );
-//   };
-
-//   const handleClockIn = () => {
-//     setIsClockedIn(true);
-//     fetchAndSendLocation("clockin");
-
-//     // Start interval updates every 1 minute (60,000ms)
-//     intervalRef.current = setInterval(() => {
-//       console.log("🔁 Sending periodic location update");
-//       fetchAndSendLocation("update");
-//     }, 60000);
-//   };
-
-//   const handleClockOut = () => {
+//   // 🕓 Clock Out
+//   const handleClockOut = async () => {
 //     setIsClockedIn(false);
-//     fetchAndSendLocation("clockout");
-
-//     // Stop periodic updates
+//     await sendLocationToBackend(location, "clockout");
 //     if (intervalRef.current) clearInterval(intervalRef.current);
+//     alert("📤 You have successfully clocked out.");
 //   };
 
 //   return (
@@ -99,7 +227,8 @@
 
 //       <div className="mb-2">
 //         <strong>Latitude:</strong> {location.latitude ?? "N/A"} <br />
-//         <strong>Longitude:</strong> {location.longitude ?? "N/A"}
+//         <strong>Longitude:</strong> {location.longitude ?? "N/A"} <br />
+//         {distance !== null && <p>📏 Distance from site: {distance} meters</p>}
 //       </div>
 
 //       <div className="space-x-4 mb-4">
@@ -125,6 +254,7 @@
 //           width="100%"
 //           height="400"
 //           className="rounded-xl shadow"
+//           loading="lazy"
 //           frameBorder="0"
 //           style={{ border: 0 }}
 //           referrerPolicy="no-referrer-when-downgrade"
@@ -132,7 +262,7 @@
 //           allowFullScreen
 //         ></iframe>
 //       ) : (
-//         <p>Fetching your location...</p>
+//         <p>📍 Fetching your location...</p>
 //       )}
 //     </div>
 //   );
@@ -142,133 +272,13 @@
 
 
 
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState, useRef } from "react";
-// import { useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
-// import { apiEndpoints } from "../../services/apiConfig";
-
-// const MyTimeline = () => {
-//   const [location, setLocation] = useState({ latitude: null, longitude: null });
-//   const [error, setError] = useState("");
-//   const navigate = useNavigate();
-//   const intervalRef = useRef(null); // to hold interval ID
-
-//   // Send coordinates to backend
-//   const sendLocationToBackend = (coords) => {
-//     axios
-//       .post(apiEndpoints.mytimeline, coords, {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-//         },
-//       })
-//       .then((res) => {
-//         console.log("✅ Location sent:", res.data);
-//       })
-//       .catch((err) => {
-//         console.error("❌ Failed to send location:", err);
-//       });
-//   };
-
-//   // Get current position and send to backend
-//   const fetchAndSendLocation = () => {
-//     navigator.geolocation.getCurrentPosition(
-//       (position) => {
-//         const coords = {
-//           latitude: position.coords.latitude,
-//           longitude: position.coords.longitude,
-//         };
-//         setLocation(coords); // update state for UI
-//         sendLocationToBackend(coords); // send to backend
-//       },
-//       (err) => {
-//         setError("Location access denied. Please enable location.");
-//         console.error("❌ Geolocation error:", err);
-//       }
-//     );
-//   };
-
-//   useEffect(() => {
-//     // Check user validity
-//     const isValid = checkUserValid();
-//     if (!isValid) {
-//       navigate("/login");
-//       return;
-//     }
-
-//     // Send location immediately once
-//     fetchAndSendLocation();
-
-//     // Set interval to send location every 15 minutes
-//     intervalRef.current = setInterval(() => {
-//       console.log("🔁 Interval fired");
-//       fetchAndSendLocation();
-//     }, 900000); // 900,000 ms = 15 minutes
-
-//     // Cleanup on unmount
-//     return () => {
-//       if (intervalRef.current) clearInterval(intervalRef.current);
-//     };
-//   }, [navigate]);
-
-//   return (
-//     <div className="w-full px-4 sm:px-6 md:px-8 py-4 space-y-6">
-//       <h1 className="text-2xl font-bold text-orange-400">MyTimeLine</h1>
-//       <p className="text-sm text-gray-500">This is your current time:</p>
-
-//       {error && <p className="text-red-500">{error}</p>}
-
-//       {location.latitude && location.longitude ? (
-//         <>
-//           <div className="mb-2">
-//             <strong>Latitude:</strong> {location.latitude} <br />
-//             <strong>Longitude:</strong> {location.longitude}
-//           </div>
-
-//           <iframe
-//             title="Google Map"
-//             width="100%"
-//             height="400"
-//             className="rounded-xl shadow"
-//             frameBorder="0"
-//             style={{ border: 0 }}
-//             referrerPolicy="no-referrer-when-downgrade"
-//             src={`https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`}
-//             allowFullScreen
-//           ></iframe>
-//         </>
-//       ) : (
-//         <p>Fetching your location...</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default MyTimeline;
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { checkUserValid } from "../../CommonUserValidCheck/checkUserValid";
 import { apiEndpoints } from "../../services/apiConfig";
+
 
 const MyTimeline = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
@@ -277,59 +287,41 @@ const MyTimeline = () => {
   const intervalRef = useRef(null);
   const navigate = useNavigate();
 
-  // ?? Validate login on load and get initial location (for map)
-  useEffect(() => {
-    const isValid = checkUserValid();
-    if (!isValid) {
-      navigate("/login");
+  const timeout = parseInt(import.meta.env.VITE_MILLISECONDS, 10);   
+
+  // ✅ Send location to backend
+  const sendLocationToBackend = useCallback(async (coords, status) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      status,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      await axios.post(apiEndpoints.mytimeline, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(`📡 Sent [${status}] to backend`, payload);
+    } catch (err) {
+      console.error("❌ Failed to send location:", err);
+      toast.error("❌ Failed to send location.");
+    }
+  }, []);
+
+  // ✅ Fetch location without sending
+  const fetchOnlyLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      toast.error("Geolocation not supported.");
       return;
     }
 
-    // ?? Get current location for display
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      },
-      (err) => {
-        setError("Location access denied. Please enable location.");
-        console.error("? Geolocation error:", err);
-      }
-    );
-
-    // ?? Clear interval on unmount
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [navigate]);
-
-  // ? API call to backend with current coordinates and status
-  const sendLocationToBackend = (coords, status) => {
-    const token = localStorage.getItem("token");
-    console.log("?? Sending to backend:", coords, status);
-
-    axios
-      .post(
-        apiEndpoints.mytimeline,
-        { ...coords, status }, // Payload includes latitude, longitude, and status
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((res) => {
-        console.log(`? ${status} location sent:`, res.data);
-      })
-      .catch((err) => {
-        console.error(`? Failed to send ${status} location:`, err);
-      });
-  };
-
-  // ? Get current location and send it with desired status (clockin/clockout/updated)
-  const fetchAndSendLocation = (status = "clockin-updated") => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const coords = {
@@ -337,37 +329,84 @@ const MyTimeline = () => {
           longitude: position.coords.longitude,
         };
         setLocation(coords);
-        sendLocationToBackend(coords, status);
       },
       (err) => {
-        setError("Location access denied. Please enable location.");
-        console.error("? Geolocation error:", err);
-      }
+        setError("❌ Location access denied.");
+        toast.error("❌ Please enable location.");
+        console.error("Geolocation error:", err);
+      },
+      { enableHighAccuracy: true }
     );
-  };
+  }, []);
 
-  // ? Clock In Logic
-  const handleClockIn = () => {
-    console.log("?? Clock In Clicked");
+  // ✅ Fetch & send location
+  const fetchLocationAndSend = useCallback(
+    (status = "update") => {
+      if (!navigator.geolocation) {
+        setError("Geolocation is not supported by your browser.");
+        toast.error("Geolocation not supported.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+
+          setLocation(coords);
+          await sendLocationToBackend(coords, status);
+        },
+        (err) => {
+          setError("❌ Location access denied.");
+          toast.error("❌ Please enable location.");
+          console.error("Geolocation error:", err);
+        },
+        { enableHighAccuracy: true }
+      );
+    },
+    [sendLocationToBackend]
+  );
+
+  // 🔐 Check user
+  useEffect(() => {
+    const isValid = checkUserValid();
+    if (!isValid) {
+      navigate("/login");
+      return;
+    }
+
+    fetchOnlyLocation(); // ❌ Just fetch — don’t send to backend
+  }, [navigate, fetchOnlyLocation]);
+
+  // 🕒 Clock In
+  const handleClockIn = async () => {
     setIsClockedIn(true);
-    fetchAndSendLocation("clockin");
+    fetchLocationAndSend("clockin");
 
-    // ?? Start sending updated location every 1 minute
+    // Start interval every 1 min (60000ms)
     intervalRef.current = setInterval(() => {
-      console.log("?? Sending periodic location update");
-      fetchAndSendLocation("clockin-updated");
-    }, 60000);
+      fetchLocationAndSend("update");
+    }, timeout);
+
+    toast.success("✅ Clocked in successfully.");
   };
 
-  // ? Clock Out Logic
-  const handleClockOut = () => {
-    console.log("?? Clock Out Clicked");
+  // 🕓 Clock Out
+  const handleClockOut = async () => {
     setIsClockedIn(false);
-    fetchAndSendLocation("clockout");
-
-    // ?? Stop sending periodic updates
     if (intervalRef.current) clearInterval(intervalRef.current);
+    await fetchLocationAndSend("clockout");
+    toast.info("📤 You have successfully clocked out.");
   };
+
+  // 🧹 Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-4 space-y-6">
@@ -376,13 +415,11 @@ const MyTimeline = () => {
 
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* ?? Display current coordinates */}
       <div className="mb-2">
         <strong>Latitude:</strong> {location.latitude ?? "N/A"} <br />
-        <strong>Longitude:</strong> {location.longitude ?? "N/A"}
+        <strong>Longitude:</strong> {location.longitude ?? "N/A"} <br />
       </div>
 
-      {/* ? Clock In / Out Buttons */}
       <div className="space-x-4 mb-4">
         <button
           onClick={handleClockIn}
@@ -400,13 +437,13 @@ const MyTimeline = () => {
         </button>
       </div>
 
-      {/* ?? Embed Google Map */}
       {location.latitude && location.longitude ? (
         <iframe
           title="Google Map"
           width="100%"
           height="400"
           className="rounded-xl shadow"
+          loading="lazy"
           frameBorder="0"
           style={{ border: 0 }}
           referrerPolicy="no-referrer-when-downgrade"
@@ -414,17 +451,10 @@ const MyTimeline = () => {
           allowFullScreen
         ></iframe>
       ) : (
-        <p>Fetching your location...</p>
+        <p>📍 Fetching your location...</p>
       )}
-
-      {/* ?? Debug only: display endpoint */}
-      {/* <p className="text-xs text-gray-400">Endpoint: {apiEndpoints.mytimeline}</p> */}
     </div>
   );
 };
 
 export default MyTimeline;
-
-
-
-

@@ -12,7 +12,7 @@ const Navbar = () => {
   const decoded = getDecodedToken(); 
 
   useEffect(() => {
-    const storedUser = decoded?.sub || "";
+    const storedUser = decoded?.email || "";
     setUserName(storedUser || "User");
   }, []);
 

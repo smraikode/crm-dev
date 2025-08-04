@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import getDecodedToken from "../../utils/decodeToken"; 
+import getDecodedToken from "../../utils/decodeToken";
 import {
   FaTachometerAlt,
   FaUserFriends,
@@ -7,8 +7,6 @@ import {
   FaHome,
   FaChartBar,
   FaTasks,
-  FaCog,
-  FaSignOutAlt,
   FaRegGem,
   FaChevronRight,
   FaChevronDown,
@@ -16,15 +14,13 @@ import {
   FaBars,
   FaTimes,
   FaUserCircle,
-  FaClipboardList,
 } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [openSubmenus, setOpenSubmenus] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const toggleSubmenu = (label) => {
     setOpenSubmenus((prev) => ({
@@ -34,36 +30,28 @@ const Sidebar = () => {
   };
 
   const isActive = (path) => location.pathname.startsWith(path);
-  const decoded = getDecodedToken(); 
-
+  const decoded = getDecodedToken();
   const userRole = decoded?.role || "";
+  const isManagerOrAbove = ["manager", "lead", "admin"].includes(userRole);
 
+  // Define menu items based on role
   const menuItems = [
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Dashboard",
-          icon: <FaTachometerAlt />,
-          path: "/dashboard",
-        },
-      ]
-      : []),
+    {
+      label: "Dashboard",
+      icon: <FaTachometerAlt />,
+      path: "/dashboard",
+    },
+    {
+      label: "Leads",
+      icon: <FaUserFriends />,
+      path: "/leads",
+      submenu: [
+        { label: "All Leads", path: "/leads/all" },
+        { label: "New Lead", path: "/leads/new" },
+      ],
 
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Leads",
-          icon: <FaUserFriends />,
-          path: "/leads",
-          submenu: [
-            { label: "All Leads", path: "/leads/all" },
-            { label: "New Lead", path: "/leads/new" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
+    },
+    ...(isManagerOrAbove
       ? [
         {
           label: "Projects",
@@ -74,63 +62,65 @@ const Sidebar = () => {
             { label: "Analytics", path: "/projects/analytics" },
           ],
         },
+        // {
+        //   label: "Properties",
+        //   icon: <FaHome />,
+        //   path: "/properties",
+        // },
+
+
+
+
       ]
       : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Properties",
-          icon: <FaHome />,
-          path: "/properties",
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Reports",
-          icon: <FaChartBar />,
-          path: "/reports",
-          submenu: [
-            { label: "My Reports", path: "/reports/my" },
+    {
+      label: "Properties",
+      icon: <FaHome />,
+      submenu: [
+        { label: "All Properties", path: "/properties/all" },
+        ...(userRole === "admin"
+          ? [{ label: "Manage Properties", path: "/properties/manage" }]
+          : []),
+      ],
+    },
+    {
+      label: "Reports",
+      icon: <FaChartBar />,
+      path: "/reports",
+      submenu: [
+        { label: "My Reports", path: "/reports/my" },
+        ...(isManagerOrAbove
+          ? [
             { label: "Team Reports", path: "/reports/team" },
             { label: "Company Reports", path: "/reports/company" },
-          ],
-        },
-      ]
-      : []),
+          ]
+          : []),
+      ],
+    },
+    {
+      label: "Tasks",
+      icon: <FaTasks />,
+      path: "/tasks",
+      submenu: [
+        { label: "My Tasks", path: "/tasks/my" },
+        ...(isManagerOrAbove ? [{ label: "Team Tasks", path: "/tasks/team" }] : []),
+      ],
+    },
+    {
+      label: "Attendance",
+      icon: <FaUserCheck />,
+      submenu: [
+        { label: "My Attendance", path: "/attendance/myAttendance" },
+        { label: "My Timeline", path: "/attendance/mytimeline" },
 
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Tasks",
-          icon: <FaTasks />,
-          path: "/tasks",
-          submenu: [
-            { label: "My Tasks", path: "/tasks/my" },
-            { label: "Team Tasks", path: "/tasks/team" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
-      ? [
-        {
-          label: "Attendance",
-          icon: <FaUserCheck />,
-          submenu: [
-            { label: "My Attendance", path: "/attendance/my" },
-            { label: "Team Attendance", path: "/attendance/team" },
-            { label: "My Timeline", path: "/attendance/mytimeline" },
-          ],
-        },
-      ]
-      : []),
-
-    ...(userRole === "admin"
+        ...(isManagerOrAbove
+          ? [
+            { label: "Team Attendance", path: "/attendance/team" }
+          ]
+          : []),
+      ],
+    },
+    ...(isManagerOrAbove
       ? [
         {
           label: "Manage Roles",
@@ -139,16 +129,28 @@ const Sidebar = () => {
         },
       ]
       : []),
+
+      ...(userRole === "admin"
+    ? [
+        {
+          label: "Site Assign",
+          icon: <FaHome />,
+          path: "/site-assign", // <-- make sure this route matches your route path
+        },
+      ]
+    : []),
+    // {
+    //   label: "Org Tree",
+    //   icon: <FaUserFriends />,
+    //   path: "/org-tree",
+    // },
+
   ];
 
-
-  // Close sidebar on navigation (mobile)
   const handleNav = () => setSidebarOpen(false);
 
-  // Sidebar content
   const sidebarContent = (
     <div className="flex flex-col h-full min-h-0">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6 px-1 min-w-0">
         <FaRegGem className="text-orange-400 text-lg xs:text-xl sm:text-2xl" />
         <h1
@@ -159,13 +161,12 @@ const Sidebar = () => {
         </h1>
       </div>
 
-
-      {/* Navigation */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const isSubmenuOpen = openSubmenus[item.label];
             const active = isActive(item.path || "");
+
             return (
               <li key={item.label}>
                 {item.submenu ? (
@@ -176,23 +177,15 @@ const Sidebar = () => {
                         }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base sm:text-lg">
-                          {item.icon}
-                        </span>
-                        <span className="text-xs xs:text-sm sm:text-base">
-                          {item.label}
-                        </span>
+                        <span className="text-base sm:text-lg">{item.icon}</span>
+                        <span className="text-xs xs:text-sm sm:text-base">{item.label}</span>
                       </div>
                       {isSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
                     </div>
                     {isSubmenuOpen && (
                       <ul className="pl-7 mt-1 space-y-1">
                         {item.submenu.map((sub) => (
-                          <Link
-                            key={sub.path}
-                            to={sub.path}
-                            onClick={handleNav}
-                          >
+                          <Link key={sub.path} to={sub.path} onClick={handleNav}>
                             <li
                               className={`px-2 py-1 rounded hover:bg-gray-500 ${isActive(sub.path) ? "bg-gray-700" : ""
                                 } text-xs sm:text-sm`}
@@ -201,7 +194,6 @@ const Sidebar = () => {
                             </li>
                           </Link>
                         ))}
-
                       </ul>
                     )}
                   </>
@@ -212,25 +204,20 @@ const Sidebar = () => {
                         }`}
                     >
                       <span className="text-base sm:text-lg">{item.icon}</span>
-                      <span className="text-xs xs:text-sm sm:text-base">
-                        {item.label}
-                      </span>
+                      <span className="text-xs xs:text-sm sm:text-base">{item.label}</span>
                     </div>
                   </Link>
                 )}
-
               </li>
             );
           })}
         </ul>
       </div>
-
     </div>
   );
 
   return (
     <>
-      {/* Hamburger Button (Mobile/Tablet) */}
       <button
         className="fixed top-3 left-3 z-50 md:hidden bg-[#0e1e49] text-white p-2 rounded shadow-lg focus:outline-none"
         onClick={() => setSidebarOpen(true)}
@@ -239,7 +226,6 @@ const Sidebar = () => {
         <FaBars size={20} />
       </button>
 
-      {/* Sidebar Overlay (Mobile) */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden transition-all duration-300"
@@ -262,7 +248,6 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* Sidebar (Desktop/Tablet) */}
       <div className="hidden md:flex flex-col w-44 lg:w-56 xl:w-64 max-w-xs h-screen bg-[#0e1e49] text-white fixed top-0 left-0 z-30 p-3 transition-all duration-300">
         {sidebarContent}
       </div>
