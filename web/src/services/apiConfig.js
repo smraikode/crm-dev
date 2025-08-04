@@ -27,6 +27,8 @@ const apiEndpoints = {
   assignOfficeToUser: `${BACKEND_URL}/user/add-office`,
   MyAttendance: `${BACKEND_URL}/attendance/history`,
   getSubordinates: `${BACKEND_URL}/roles/get-subordinates`,
+  callClient: `${BACKEND_URL}/msg-service/call-client`,
+
 
 
   //assignLead: `${BACKEND_URL}/leads/assign`,
